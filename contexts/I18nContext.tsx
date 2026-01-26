@@ -111,6 +111,7 @@ const translations: Record<string, Record<string, string>> = {
     'tools.timestamp.iso8601': 'ISO 8601:',
     'tools.timestamp.utc': 'UTC:',
     'tools.timestamp.local': '本地时间:',
+    'tools.timestamp.formatted': '日期时间:',
     'tools.timestamp.quickActions': '快捷操作',
     'tools.timestamp.getCurrent': '获取当前时间戳',
     'tools.timestamp.currentSeconds': '当前 (秒)',
@@ -134,6 +135,21 @@ const translations: Record<string, Record<string, string>> = {
     'theme.light': '浅色',
     'theme.dark': '深色',
     'theme.system': '跟随系统',
+
+    // tool names
+    'tools.base64.name': 'Base64',
+    'tools.urlEncoder.name': 'URL 编码',
+    'tools.jsonFormatter.name': 'JSON 格式化',
+    'tools.htmlFormatter.name': 'HTML 格式化',
+    'tools.sqlFormatter.name': 'SQL 格式化',
+    'tools.regexTester.name': '正则测试',
+    'tools.mermaid.name': 'Mermaid',
+    'tools.timestamp.name': '时间戳',
+    'tools.uuid.name': 'UUID',
+
+    // menu groups
+    'menu.stringTools': '字符串工具',
+    'menu.otherTools': '其他工具',
   },
   en: {
     // common
@@ -242,6 +258,7 @@ const translations: Record<string, Record<string, string>> = {
     'tools.timestamp.iso8601': 'ISO 8601:',
     'tools.timestamp.utc': 'UTC:',
     'tools.timestamp.local': 'Local:',
+    'tools.timestamp.formatted': 'DateTime:',
     'tools.timestamp.quickActions': 'Quick Actions',
     'tools.timestamp.getCurrent': 'Get Current Timestamp',
     'tools.timestamp.currentSeconds': 'Current (seconds)',
@@ -265,6 +282,21 @@ const translations: Record<string, Record<string, string>> = {
     'theme.light': 'Light',
     'theme.dark': 'Dark',
     'theme.system': 'System',
+
+    // tool names
+    'tools.base64.name': 'Base64',
+    'tools.urlEncoder.name': 'URL Encoder',
+    'tools.jsonFormatter.name': 'JSON Formatter',
+    'tools.htmlFormatter.name': 'HTML Formatter',
+    'tools.sqlFormatter.name': 'SQL Formatter',
+    'tools.regexTester.name': 'Regex Tester',
+    'tools.mermaid.name': 'Mermaid',
+    'tools.timestamp.name': 'Timestamp',
+    'tools.uuid.name': 'UUID',
+
+    // menu groups
+    'menu.stringTools': 'String Tools',
+    'menu.otherTools': 'Other Tools',
   },
 };
 

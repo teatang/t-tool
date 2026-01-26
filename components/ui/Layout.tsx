@@ -6,7 +6,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   HomeOutlined,
-  ToolOutlined,
+  FontSizeOutlined,
   LockOutlined,
   LinkOutlined,
   CodeOutlined,
@@ -16,6 +16,7 @@ import {
   BlockOutlined,
   ClockCircleOutlined,
   IdcardOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,20 +34,27 @@ interface AppLayoutProps {
 }
 
 /**
- * 获取工具菜单项
- * @returns 工具菜单项数组
+ * 获取字符串工具菜单项
  */
-function getToolMenuItems() {
+function getStringToolItems(t: (key: string) => string) {
   return [
-    { key: '/tools/base64', icon: <LockOutlined />, label: <Link href="/tools/base64">Base64</Link> },
-    { key: '/tools/url-encoder', icon: <LinkOutlined />, label: <Link href="/tools/url-encoder">URL 编码</Link> },
-    { key: '/tools/json-formatter', icon: <CodeOutlined />, label: <Link href="/tools/json-formatter">JSON 格式化</Link> },
-    { key: '/tools/html-formatter', icon: <FileTextOutlined />, label: <Link href="/tools/html-formatter">HTML 格式化</Link> },
-    { key: '/tools/sql-formatter', icon: <DatabaseOutlined />, label: <Link href="/tools/sql-formatter">SQL 格式化</Link> },
-    { key: '/tools/regex-tester', icon: <ExperimentOutlined />, label: <Link href="/tools/regex-tester">正则测试</Link> },
-    { key: '/tools/mermaid', icon: <BlockOutlined />, label: <Link href="/tools/mermaid">Mermaid</Link> },
-    { key: '/tools/timestamp', icon: <ClockCircleOutlined />, label: <Link href="/tools/timestamp">时间戳</Link> },
-    { key: '/tools/uuid', icon: <IdcardOutlined />, label: <Link href="/tools/uuid">UUID</Link> },
+    { key: '/tools/base64', icon: <LockOutlined />, label: <Link href="/tools/base64">{t('tools.base64.name')}</Link> },
+    { key: '/tools/url-encoder', icon: <LinkOutlined />, label: <Link href="/tools/url-encoder">{t('tools.urlEncoder.name')}</Link> },
+    { key: '/tools/json-formatter', icon: <CodeOutlined />, label: <Link href="/tools/json-formatter">{t('tools.jsonFormatter.name')}</Link> },
+    { key: '/tools/html-formatter', icon: <FileTextOutlined />, label: <Link href="/tools/html-formatter">{t('tools.htmlFormatter.name')}</Link> },
+    { key: '/tools/sql-formatter', icon: <DatabaseOutlined />, label: <Link href="/tools/sql-formatter">{t('tools.sqlFormatter.name')}</Link> },
+    { key: '/tools/regex-tester', icon: <ExperimentOutlined />, label: <Link href="/tools/regex-tester">{t('tools.regexTester.name')}</Link> },
+  ];
+}
+
+/**
+ * 获取其他工具菜单项
+ */
+function getOtherToolItems(t: (key: string) => string) {
+  return [
+    { key: '/tools/mermaid', icon: <BlockOutlined />, label: <Link href="/tools/mermaid">{t('tools.mermaid.name')}</Link> },
+    { key: '/tools/timestamp', icon: <ClockCircleOutlined />, label: <Link href="/tools/timestamp">{t('tools.timestamp.name')}</Link> },
+    { key: '/tools/uuid', icon: <IdcardOutlined />, label: <Link href="/tools/uuid">{t('tools.uuid.name')}</Link> },
   ];
 }
 
@@ -57,7 +65,7 @@ function getToolMenuItems() {
 export function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);  // 侧边栏是否折叠
   const pathname = usePathname();                      // 当前路径
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const { isDark } = useAppSelector((state) => state.theme);  // 从 store 直接获取 isDark
   const isZh = locale === 'zh';
   const {
@@ -67,8 +75,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   // 侧边栏背景色（使用与主布局一致的颜色）
   const siderBg = isDark ? '#141414' : '#fff';
 
-  // 工具菜单项
-  const toolMenuItems = useMemo(() => getToolMenuItems(), []);
+  // 字符串工具菜单项
+  const stringToolItems = useMemo(() => getStringToolItems(t), [t]);
+
+  // 其他工具菜单项
+  const otherToolItems = useMemo(() => getOtherToolItems(t), [t]);
 
   // 主菜单配置
   const menuItems = [
@@ -78,10 +89,16 @@ export function AppLayout({ children }: AppLayoutProps) {
       label: <Link href="/">{isZh ? '首页' : 'Home'}</Link>,
     },
     {
-      key: 'tools',
-      icon: <ToolOutlined />,
-      label: isZh ? '工具箱' : 'Toolbox',
-      children: toolMenuItems,
+      key: 'stringTools',
+      icon: <FontSizeOutlined />,
+      label: t('menu.stringTools'),
+      children: stringToolItems,
+    },
+    {
+      key: 'otherTools',
+      icon: <AppstoreOutlined />,
+      label: t('menu.otherTools'),
+      children: otherToolItems,
     },
   ];
 

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Input, Button, Space, Typography, Segmented, Table, Tag } from 'antd';
-import { CopyOutlined, PlayCircleOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { Card, Input, Button, Space, Typography, Segmented, Table, Tag, Checkbox, Empty } from 'antd';
+import { CopyOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { regexTest, regexReplace, regexGetPatternInfo, RegexMatch } from '@/utils/string/regex';
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -14,11 +14,24 @@ const { TextArea } = Input;
 
 type Mode = 'test' | 'replace';
 
+// 可用的正则标志
+const FLAG_OPTIONS = [
+  { label: 'g', value: 'g', title: '全局匹配' },
+  { label: 'i', value: 'i', title: '忽略大小写' },
+  { label: 'm', value: 'm', title: '多行模式' },
+  { label: 's', value: 's', title: 'dotAll 模式' },
+  { label: 'u', value: 'u', title: 'Unicode' },
+  { label: 'y', value: 'y', title: '粘性匹配' },
+];
+
+// 高亮颜色（两种交替）
+const HIGHLIGHT_COLORS = ['#ffd666', '#85e0a3'];
+
 export default function RegexTesterPage() {
   const { t } = useI18n();
   const [mode, setMode] = useState<Mode>('test');
   const [pattern, setPattern] = useState('\\w+');
-  const [flags, setFlags] = useState('g');
+  const [flagValues, setFlagValues] = useState<string[]>(['g']);
   const [testStr, setTestStr] = useState('Hello World 123');
   const [replaceStr, setReplaceStr] = useState('[$&]');
   const [matches, setMatches] = useState<RegexMatch[]>([]);
@@ -26,25 +39,34 @@ export default function RegexTesterPage() {
   const [patternError, setPatternError] = useState('');
   const [isValid, setIsValid] = useState(true);
 
+  // 将选中的标志组合成字符串
+  const flags = flagValues.join('');
+
+  // 验证正则表达式
   useEffect(() => {
     const info = regexGetPatternInfo(pattern);
     setIsValid(info.isValid);
     setPatternError(info.error || '');
   }, [pattern]);
 
-  const handleTest = () => {
-    if (!isValid) return;
-    const result = regexTest(pattern, flags, testStr);
-    setMatches(result.matches);
-    setPatternError(result.error || '');
-  };
+  // 自动测试或替换
+  useEffect(() => {
+    if (!isValid || !pattern) {
+      setMatches([]);
+      setReplaceResult('');
+      return;
+    }
 
-  const handleReplace = () => {
-    if (!isValid) return;
-    const result = regexReplace(pattern, replaceStr, flags, testStr);
-    setReplaceResult(result.result);
-    setPatternError(result.error || '');
-  };
+    if (mode === 'test') {
+      const result = regexTest(pattern, flags, testStr);
+      setMatches(result.matches);
+      setPatternError(result.error || '');
+    } else {
+      const result = regexReplace(pattern, replaceStr, flags, testStr);
+      setReplaceResult(result.result);
+      setPatternError(result.error || '');
+    }
+  }, [pattern, flags, testStr, replaceStr, mode, isValid]);
 
   const columns = [
     { title: t('tools.regexTester.match'), dataIndex: 'match', key: 'match' },
@@ -53,6 +75,48 @@ export default function RegexTesterPage() {
       gs?.length ? gs.map((g, i) => <Tag key={i}>{g || t('tools.regexTester.empty')}</Tag>) : '-'
     )},
   ];
+
+  // 生成高亮预览内容
+  const renderHighlightPreview = () => {
+    if (!testStr) return null;
+
+    const parts: { text: string; colorIndex: number }[] = [];
+    let lastIndex = 0;
+
+    // 按位置排序匹配结果
+    const sortedMatches = [...matches].sort((a, b) => a.index - b.index);
+
+    for (let i = 0; i < sortedMatches.length; i++) {
+      const match = sortedMatches[i];
+      if (match.index > lastIndex) {
+        parts.push({ text: testStr.slice(lastIndex, match.index), colorIndex: -1 });
+      }
+      parts.push({ text: match.match, colorIndex: i % 2 });
+      lastIndex = match.index + match.match.length;
+    }
+
+    if (lastIndex < testStr.length) {
+      parts.push({ text: testStr.slice(lastIndex), colorIndex: -1 });
+    }
+
+    return (
+      <div className="font-mono text-sm p-3 border rounded bg-gray-50 dark:bg-gray-800 whitespace-pre-wrap break-all">
+        {parts.map((part, i) => (
+          <span
+            key={i}
+            style={{
+              backgroundColor: part.colorIndex >= 0 ? HIGHLIGHT_COLORS[part.colorIndex] : 'transparent',
+              color: part.colorIndex >= 0 ? '#000' : 'inherit',
+              padding: part.colorIndex >= 0 ? '1px 2px' : 0,
+              borderRadius: part.colorIndex >= 0 ? '2px' : 0,
+            }}
+          >
+            {part.text}
+          </span>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -65,7 +129,7 @@ export default function RegexTesterPage() {
         value={mode}
         onChange={(val) => setMode(val as Mode)}
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Text strong>{t('tools.regexTester.pattern')}</Text>
           <Input
@@ -78,11 +142,18 @@ export default function RegexTesterPage() {
         </div>
         <div>
           <Text strong>{t('tools.regexTester.flags')}</Text>
-          <Input
-            value={flags}
-            onChange={(e) => setFlags(e.target.value)}
-            placeholder={t('tools.regexTester.placeholderFlags')}
-          />
+          <div className="mt-1">
+            <Checkbox.Group
+              value={flagValues}
+              onChange={(values) => setFlagValues(values as string[])}
+            >
+              {FLAG_OPTIONS.map((flag) => (
+                <Checkbox key={flag.value} value={flag.value} title={flag.title}>
+                  {flag.label}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+          </div>
         </div>
       </div>
       <Card title={t('tools.regexTester.testString')} size="small">
@@ -91,6 +162,12 @@ export default function RegexTesterPage() {
           onChange={(e) => setTestStr(e.target.value)}
           rows={4}
         />
+        {mode === 'test' && matches.length > 0 && (
+          <div className="mt-3">
+            <Text type="secondary" className="mb-2 block">{t('tools.regexTester.matches', { count: matches.length })}</Text>
+            {renderHighlightPreview()}
+          </div>
+        )}
       </Card>
       {mode === 'replace' && (
         <Card title={t('tools.regexTester.replacement')} size="small">
@@ -102,20 +179,23 @@ export default function RegexTesterPage() {
         </Card>
       )}
       <Space>
-        <Button type="primary" icon={<PlayCircleOutlined />} onClick={mode === 'test' ? handleTest : handleReplace}>
-          {mode === 'test' ? t('tools.regexTester.testBtn') : t('tools.regexTester.replaceBtn')}
-        </Button>
-        <Button onClick={() => { setTestStr(''); setMatches([]); setReplaceResult(''); }}>
+        <Button onClick={() => { setTestStr(''); setReplaceStr('[$&]'); setMatches([]); setReplaceResult(''); }}>
           {t('common.clear')}
         </Button>
       </Space>
-      {mode === 'test' && matches.length > 0 && (
+      {mode === 'test' && (
         <Card title={t('tools.regexTester.matches', { count: matches.length })} size="small">
-          <Table dataSource={matches} columns={columns} rowKey={(r) => `${r.index}-${r.match}`} pagination={false} />
+          {matches.length > 0 ? (
+            <Table dataSource={matches} columns={columns} rowKey={(r) => `${r.index}-${r.match}`} pagination={false} />
+          ) : (
+            <Empty description={t('tools.regexTester.testString')} />
+          )}
         </Card>
       )}
-      {mode === 'replace' && replaceResult && (
-        <Card title={t('common.result')} size="small" extra={<Button icon={<CopyOutlined />} onClick={() => navigator.clipboard.writeText(replaceResult)} />}>
+      {mode === 'replace' && (
+        <Card title={t('common.result')} size="small" extra={
+          replaceResult && <Button icon={<CopyOutlined />} onClick={() => navigator.clipboard.writeText(replaceResult)} />
+        }>
           <pre className="whitespace-pre-wrap">{replaceResult}</pre>
         </Card>
       )}

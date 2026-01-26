@@ -45,15 +45,15 @@ export default function HomePage() {
   const { t } = useI18n();
 
   const tools = [
-    { href: '/tools/base64', title: 'Base64', description: t('tools.base64.title'), icon: <LockOutlined /> },
-    { href: '/tools/url-encoder', title: 'URL 编码', description: t('tools.urlEncoder.title'), icon: <LinkOutlined /> },
-    { href: '/tools/json-formatter', title: 'JSON 格式化', description: t('tools.jsonFormatter.title'), icon: <CodeOutlined /> },
-    { href: '/tools/html-formatter', title: 'HTML 格式化', description: t('tools.htmlFormatter.title'), icon: <FileTextOutlined /> },
-    { href: '/tools/sql-formatter', title: 'SQL 格式化', description: t('tools.sqlFormatter.title'), icon: <DatabaseOutlined /> },
-    { href: '/tools/regex-tester', title: '正则测试', description: t('tools.regexTester.title'), icon: <ExperimentOutlined /> },
-    { href: '/tools/mermaid', title: 'Mermaid', description: t('tools.mermaid.title'), icon: <BlockOutlined /> },
-    { href: '/tools/timestamp', title: '时间戳', description: t('tools.timestamp.title'), icon: <ClockCircleOutlined /> },
-    { href: '/tools/uuid', title: 'UUID', description: t('tools.uuid.title'), icon: <IdcardOutlined /> },
+    { href: '/tools/base64', title: t('tools.base64.name'), description: t('tools.base64.title'), icon: <LockOutlined /> },
+    { href: '/tools/url-encoder', title: t('tools.urlEncoder.name'), description: t('tools.urlEncoder.title'), icon: <LinkOutlined /> },
+    { href: '/tools/json-formatter', title: t('tools.jsonFormatter.name'), description: t('tools.jsonFormatter.title'), icon: <CodeOutlined /> },
+    { href: '/tools/html-formatter', title: t('tools.htmlFormatter.name'), description: t('tools.htmlFormatter.title'), icon: <FileTextOutlined /> },
+    { href: '/tools/sql-formatter', title: t('tools.sqlFormatter.name'), description: t('tools.sqlFormatter.title'), icon: <DatabaseOutlined /> },
+    { href: '/tools/regex-tester', title: t('tools.regexTester.name'), description: t('tools.regexTester.title'), icon: <ExperimentOutlined /> },
+    { href: '/tools/mermaid', title: t('tools.mermaid.name'), description: t('tools.mermaid.title'), icon: <BlockOutlined /> },
+    { href: '/tools/timestamp', title: t('tools.timestamp.name'), description: t('tools.timestamp.title'), icon: <ClockCircleOutlined /> },
+    { href: '/tools/uuid', title: t('tools.uuid.name'), description: t('tools.uuid.title'), icon: <IdcardOutlined /> },
   ];
 
   return (

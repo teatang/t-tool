@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, Input as AntInput, Button, Space, Typography, Row, Col, Divider } from 'antd';
 import { CopyOutlined, ReloadOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { timestampToDate, dateToTimestamp, getCurrentTimestamp } from '@/utils/other/timestamp';
@@ -17,25 +17,41 @@ export default function TimestampPage() {
   const [dateString, setDateString] = useState('');
   const [result, setResult] = useState<ReturnType<typeof timestampToDate> | null>(null);
   const [error, setError] = useState('');
+  const isUpdatingFromRef = useRef<'unix' | 'date' | null>(null);
 
+  // 从 Unix 时间戳更新
   const updateFromUnix = useCallback((ts: string) => {
     const num = parseInt(ts);
-    if (isNaN(num)) {
+    if (isNaN(num) || ts === '') {
       setResult(null);
-      setError(t('tools.timestamp.errorInvalidTimestamp'));
+      if (ts !== '') {
+        setError(t('tools.timestamp.errorInvalidTimestamp'));
+      } else {
+        setError('');
+      }
       return;
     }
     const data = timestampToDate(num);
     setResult(data);
+    isUpdatingFromRef.current = 'unix';
     setDateString(data.iso);
+    isUpdatingFromRef.current = null;
     setError('');
   }, [t]);
 
+  // 从日期字符串更新
   const updateFromDate = useCallback((date: string) => {
+    if (date === '') {
+      setResult(null);
+      setError('');
+      return;
+    }
     const result = dateToTimestamp(date);
     if (result.success && result.result) {
       setResult(result.result);
+      isUpdatingFromRef.current = 'date';
       setUnixTimestamp(result.result.unix.toString());
+      isUpdatingFromRef.current = null;
       setError('');
     } else {
       setError(result.error || t('tools.timestamp.errorInvalidDate'));
@@ -54,17 +70,19 @@ export default function TimestampPage() {
     navigator.clipboard.writeText(text);
   };
 
+  // Unix 时间戳变化时自动更新
   useEffect(() => {
-    if (unixTimestamp && !dateString) {
+    if (isUpdatingFromRef.current !== 'unix') {
       updateFromUnix(unixTimestamp);
     }
-  }, [unixTimestamp, dateString, updateFromUnix]);
+  }, [unixTimestamp, updateFromUnix]);
 
+  // 日期字符串变化时自动更新
   useEffect(() => {
-    if (dateString && !unixTimestamp) {
+    if (isUpdatingFromRef.current !== 'date') {
       updateFromDate(dateString);
     }
-  }, [dateString, unixTimestamp, updateFromDate]);
+  }, [dateString, updateFromDate]);
 
   return (
     <div className="space-y-4">
@@ -102,6 +120,13 @@ export default function TimestampPage() {
                 <Text strong className="text-lg">{result.unix}</Text>
                 <Text type="secondary">{t('tools.timestamp.milliseconds')}</Text>
                 <Button size="small" icon={<CopyOutlined />} onClick={() => handleCopy(result.unix.toString())} />
+              </div>
+            </Col>
+            <Col xs={24} md={12}>
+              <Text type="secondary">{t('tools.timestamp.formatted')}</Text>
+              <div className="flex items-center gap-2">
+                <Text code>{result.formatted}</Text>
+                <Button size="small" icon={<CopyOutlined />} onClick={() => handleCopy(result.formatted)} />
               </div>
             </Col>
             <Col xs={24} md={12}>

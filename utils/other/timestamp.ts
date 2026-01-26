@@ -4,10 +4,11 @@
 
 /** 时间戳转换结果接口 */
 export interface TimestampResult {
-  unix: number;   // Unix 时间戳（毫秒）
-  iso: string;    // ISO 8601 格式
-  utc: string;    // UTC 时间字符串
-  local: string;  // 本地时间字符串
+  unix: number;       // Unix 时间戳（毫秒）
+  iso: string;        // ISO 8601 格式
+  utc: string;        // UTC 时间字符串
+  local: string;      // 本地时间字符串
+  formatted: string;  // 格式化时间 "YYYY-MM-DD HH:mm:ss"
 }
 
 /**
@@ -17,11 +18,14 @@ export interface TimestampResult {
  */
 export function timestampToDate(timestamp: number): TimestampResult {
   const date = new Date(timestamp);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   return {
     unix: timestamp,
     iso: date.toISOString(),
     utc: date.toUTCString(),
     local: date.toLocaleString(),
+    formatted,
   };
 }
 
@@ -35,6 +39,8 @@ export function dateToTimestamp(dateStr: string): { success: boolean; result?: T
   if (isNaN(date.getTime())) {
     return { success: false, error: '无效的日期格式' };
   }
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   return {
     success: true,
     result: {
@@ -42,6 +48,7 @@ export function dateToTimestamp(dateStr: string): { success: boolean; result?: T
       iso: date.toISOString(),
       utc: date.toUTCString(),
       local: date.toLocaleString(),
+      formatted,
     },
   };
 }

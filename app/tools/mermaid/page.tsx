@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, Input, Button, Space, Typography, Alert, Select } from 'antd';
 import { CopyOutlined, FullscreenOutlined, BlockOutlined } from '@ant-design/icons';
-import { mermaidParse } from '@/utils/other/mermaid';
+import { mermaidRender, mermaidValidate, MermaidRenderResult } from '@/utils/other/mermaid';
 import { useI18n } from '@/contexts/I18nContext';
 
 // 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
@@ -46,6 +46,11 @@ const templates: Record<string, string> = {
     Active --> [*]
     Active --> Inactive
     Inactive --> Active`,
+  erDiagram: `erDiagram
+    USER ||--o{ ORDER : places
+    USER ||--o{ ADDRESS : has
+    ORDER ||--|{ ORDER_ITEM : contains
+    PRODUCT ||--o{ ORDER_ITEM : in`,
   pie: `pie title Pets
     "Dogs" : 386
     "Cats" : 85
@@ -77,19 +82,65 @@ export default function MermaidPage() {
   const [code, setCode] = useState('');
   const [diagramType, setDiagramType] = useState('graph');
   const [error, setError] = useState('');
+  const [renderResult, setRenderResult] = useState<MermaidRenderResult | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 初始化默认模板
+  useEffect(() => {
+    if (!code && diagramType && templates[diagramType]) {
+      setCode(templates[diagramType]);
+    }
+  }, []);
+
+  // 验证语法
   useEffect(() => {
     if (!code.trim()) {
       setError('');
       return;
     }
-    const result = mermaidParse(code);
+    const result = mermaidValidate(code);
     if (!result.success) {
-      setError(t('tools.mermaid.syntaxError'));
+      setError(result.error || t('tools.mermaid.syntaxError'));
     } else {
       setError('');
     }
   }, [code, t]);
+
+  // 渲染图表（防抖）
+  useEffect(() => {
+    if (!code.trim()) {
+      setRenderResult(null);
+      return;
+    }
+
+    // 防抖渲染
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(async () => {
+      setIsRendering(true);
+      try {
+        const result = await mermaidRender(code);
+        setRenderResult(result);
+        if (!result.success) {
+          setError(result.error || t('tools.mermaid.syntaxError'));
+        } else if (!error) {
+          setError('');
+        }
+      } catch (e) {
+        setError((e as Error).message);
+      } finally {
+        setIsRendering(false);
+      }
+    }, 500);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [code]);
 
   const handleTemplateChange = (value: string) => {
     setDiagramType(value);
@@ -132,17 +183,21 @@ export default function MermaidPage() {
           />
         </Card>
         <Card title={t('tools.mermaid.preview')} size="small">
-          <div className="min-h-[300px] flex items-center justify-center">
-            {error ? (
-              <Alert type="error" message={t('tools.mermaid.syntaxError')} description={error} />
-            ) : code ? (
-              <div className="text-center text-gray-500">
-                <Text>{t('tools.mermaid.previewPlaceholder')}</Text>
-                <br />
-                <Text type="secondary">{t('tools.mermaid.previewNote')}</Text>
-              </div>
-            ) : (
+          <div className="min-h-[300px] flex items-center justify-center overflow-auto">
+            {!code ? (
               <Text type="secondary">{t('tools.mermaid.enterCode')}</Text>
+            ) : error ? (
+              <Alert type="error" message={t('tools.mermaid.syntaxError')} description={error} />
+            ) : isRendering ? (
+              <Text type="secondary">Rendering...</Text>
+            ) : renderResult?.success && renderResult.svg ? (
+              <div
+                className="mermaid-preview"
+                dangerouslySetInnerHTML={{ __html: renderResult.svg }}
+                style={{ width: '100%', textAlign: 'center' }}
+              />
+            ) : (
+              <Text type="secondary">{t('tools.mermaid.previewPlaceholder')}</Text>
             )}
           </div>
         </Card>

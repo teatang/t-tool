@@ -12,54 +12,39 @@ export function sqlFormat(input: string): string {
   // SQL 关键字列表，用于识别和换行
   const keywords = [
     'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'ORDER BY', 'GROUP BY',
-    'HAVING', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN',
-    'OUTER JOIN', 'ON', 'INSERT INTO', 'VALUES', 'UPDATE', 'SET',
+    'HAVING', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'OUTER JOIN',
+    'FULL JOIN', 'CROSS JOIN', 'ON', 'INSERT INTO', 'VALUES', 'UPDATE', 'SET',
     'DELETE FROM', 'CREATE TABLE', 'ALTER TABLE', 'DROP TABLE',
-    'INDEX', 'UNION', 'LIMIT', 'OFFSET', 'DISTINCT', 'AS', 'IN',
-    'NOT IN', 'IS NULL', 'IS NOT NULL', 'LIKE', 'BETWEEN', 'INNER',
-    'LEFT', 'RIGHT', 'OUTER', 'CROSS', 'NATURAL', 'PRIMARY KEY',
-    'FOREIGN KEY', 'REFERENCES', 'CONSTRAINT', 'DEFAULT', 'NULL',
-    'NOT NULL', 'UNIQUE', 'CHECK', 'CASCADE', 'WITH', 'RECURSIVE',
+    'INDEX', 'UNION', 'UNION ALL', 'LIMIT', 'OFFSET', 'DISTINCT', 'AS', 'IN',
+    'NOT IN', 'IS NULL', 'IS NOT NULL', 'LIKE', 'BETWEEN', 'EXISTS',
+    'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'WITH', 'RECURSIVE',
+    'PRIMARY KEY', 'FOREIGN KEY', 'REFERENCES', 'CONSTRAINT', 'DEFAULT',
+    'NOT NULL', 'UNIQUE', 'CHECK', 'CASCADE', 'TEMPORARY', 'TABLE',
   ];
 
-  let formatted = input;
-  let result = '';
-  let indent = 0;
-  const tab = '  ';      // 缩进字符
-  const newline = '\n';  // 换行符
+  let result = input;
 
-  // 在每个关键字前后添加换行
+  // 预处理：移除注释
+  result = result.replace(/--[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // 在每个关键字前后添加换行符
   keywords.forEach((keyword) => {
-    const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
-    formatted = formatted.replace(regex, '\n' + keyword.toUpperCase() + '\n');
+    const regex = new RegExp('\\s+' + keyword + '\\s+', 'gi');
+    result = result.replace(regex, '\n' + keyword + '\n');
   });
 
-  formatted = formatted.trim();
+  // 处理换行后的缩进和清理
+  const lines = result.split('\n');
+  const formattedLines: string[] = [];
+  const indentStr = '  ';
 
-  // 处理括号和缩进
-  for (let i = 0; i < formatted.length; i++) {
-    const char = formatted[i];
-
-    if (char === '(') {
-      // 左括号后换行并增加缩进
-      result += char + newline + tab.repeat(++indent);
-    } else if (char === ')') {
-      // 右括号前换行并减少缩进
-      result += newline + tab.repeat(--indent) + char;
-    } else {
-      result += char;
-    }
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    formattedLines.push(trimmed);
   }
 
-  // 后处理：清理多余空白，格式化逗号和分号
-  result = result
-    .replace(/^\n/, '')
-    .replace(/\n\s+/g, '\n')
-    .replace(/\s+/g, ' ')
-    .replace(/,\s*/g, ',\n' + tab.repeat(indent))
-    .replace(/;\s*/g, ';\n');
-
-  return result.trim();
+  return formattedLines.join('\n');
 }
 
 /**
@@ -70,13 +55,19 @@ export function sqlFormat(input: string): string {
  */
 export function sqlMinify(input: string): string {
   return input
-    .replace(/\s+/g, ' ')           // 多余空白合并
-    .replace(/\s*,\s*/g, ',')       // 逗号周围空白移除
-    .replace(/\s*;\s*/g, ';')       // 分号周围空白移除
-    .replace(/\s*\(\s*/g, '(')      // 左括号周围空白移除
-    .replace(/\s*\)\s*/g, ')')      // 右括号周围空白移除
-    .replace(/\s*=\s*/g, '=')       // 等号周围空白移除
-    .replace(/\s*<>\s*/g, '<>')     // <> 周围空白移除
-    .replace(/\s*!=\s*/g, '!=')     // != 周围空白移除
+    .replace(/--[^\n]*/g, '')           // 移除单行注释
+    .replace(/\/\*[\s\S]*?\*\//g, '')   // 移除多行注释
+    .replace(/\s+/g, ' ')               // 多余空白合并
+    .replace(/\s*,\s*/g, ',')           // 逗号周围空白移除
+    .replace(/\s*;\s*/g, ';')           // 分号周围空白移除
+    .replace(/\s*\(\s*/g, '(')          // 左括号周围空白移除
+    .replace(/\s*\)\s*/g, ')')          // 右括号周围空白移除
+    .replace(/\s*=\s*/g, '=')           // 等号周围空白移除
+    .replace(/\s*<>\s*/g, '<>')         // <> 周围空白移除
+    .replace(/\s*!=\s*/g, '!=')         // != 周围空白移除
+    .replace(/\s*<=\s*/g, '<=')         // <= 周围空白移除
+    .replace(/\s*>=\s*/g, '>=')         // >= 周围空白移除
+    .replace(/\s*<\s*/g, '<')           // < 周围空白移除
+    .replace(/\s*>\s*/g, '>')           // > 周围空白移除
     .trim();
 }

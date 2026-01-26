@@ -18,7 +18,10 @@
       "Bash(git rm:*)",
       "Bash(git config:*)",
       "Bash(git reset:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
