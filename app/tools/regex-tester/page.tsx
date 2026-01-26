@@ -5,6 +5,7 @@ import { Card, Input, Button, Space, Typography, Segmented, Table, Tag, Checkbox
 import { CopyOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { regexTest, regexReplace, regexGetPatternInfo, RegexMatch } from '@/utils/string/regex';
 import { useI18n } from '@/contexts/I18nContext';
+import { useAppSelector } from '@/lib/store/hooks';
 
 // 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
 export const dynamic = 'force-dynamic';
@@ -24,11 +25,15 @@ const FLAG_OPTIONS = [
   { label: 'y', value: 'y', title: '粘性匹配' },
 ];
 
-// 高亮颜色（两种交替）
-const HIGHLIGHT_COLORS = ['#ffd666', '#85e0a3'];
+// 高亮颜色（两种交替）- 适配浅色/深色模式
+const HIGHLIGHT_COLORS = {
+  light: ['#fff566', '#95de64'],  // 浅色模式：柔和黄、柔和绿
+  dark: ['#d4b106', '#73d13d'],   // 深色模式
+};
 
 export default function RegexTesterPage() {
   const { t } = useI18n();
+  const isDark = useAppSelector((state) => state.theme?.isDark ?? false);
   const [mode, setMode] = useState<Mode>('test');
   const [pattern, setPattern] = useState('\\w+');
   const [flagValues, setFlagValues] = useState<string[]>(['g']);
@@ -38,6 +43,9 @@ export default function RegexTesterPage() {
   const [replaceResult, setReplaceResult] = useState('');
   const [patternError, setPatternError] = useState('');
   const [isValid, setIsValid] = useState(true);
+
+  // 根据主题获取高亮颜色
+  const highlightColors = isDark ? HIGHLIGHT_COLORS.dark : HIGHLIGHT_COLORS.light;
 
   // 将选中的标志组合成字符串
   const flags = flagValues.join('');
@@ -100,12 +108,15 @@ export default function RegexTesterPage() {
     }
 
     return (
-      <div className="font-mono text-sm p-3 border rounded bg-gray-50 dark:bg-gray-800 whitespace-pre-wrap break-all">
+      <div
+        className="font-mono text-sm p-3 border rounded whitespace-pre-wrap break-all"
+        style={{ backgroundColor: isDark ? '#1f2937' : '#ffffff' }}
+      >
         {parts.map((part, i) => (
           <span
             key={i}
             style={{
-              backgroundColor: part.colorIndex >= 0 ? HIGHLIGHT_COLORS[part.colorIndex] : 'transparent',
+              backgroundColor: part.colorIndex >= 0 ? highlightColors[part.colorIndex] : 'transparent',
               color: part.colorIndex >= 0 ? '#000' : 'inherit',
               padding: part.colorIndex >= 0 ? '1px 2px' : 0,
               borderRadius: part.colorIndex >= 0 ? '2px' : 0,
