@@ -8,9 +8,6 @@ const nextConfig: NextConfig = {
   // For repository at https://github.com/username/t-tool, use '/t-tool'
   basePath: '/t-tool',
 
-  // Asset prefix for static resources
-  assetPrefix: '/t-tool/',
-
   // Disable image optimization (not supported in static export)
   images: {
     unoptimized: true,
