@@ -1,7 +1,10 @@
 {
   "name": "t-tool",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.2.1",
+  "description": "基于 Next.js 16、Redux Toolkit、Ant Design 和 Tailwind CSS 构建的开发者工具集合网站",
+  "author": "teatang",
+  "homepage": "https://github.com/teatang/t-tool",
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
