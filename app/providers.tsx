@@ -8,16 +8,17 @@ import { useAppSelector } from '@/lib/store/hooks';
 import { useThemeInit } from '@/hooks/useThemeInit';
 import { I18nProvider } from '@/contexts/I18nContext';
 import { AntdRegistry } from './AntdRegistry';
+import { useMemo } from 'react';
 
 function AntdProvider({ children }: { children: React.ReactNode }) {
-  const isDark = useAppSelector((state) => state.theme.isDark);
+  const isDark = useAppSelector((state) => state.theme?.isDark ?? false);
+
+  const themeConfig = useMemo(() => ({
+    algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+  }), [isDark]);
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-      }}
-    >
+    <ConfigProvider theme={themeConfig}>
       {children}
     </ConfigProvider>
   );
