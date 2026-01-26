@@ -1,65 +1,113 @@
-import Image from "next/image";
+'use client';
+
+import { Card, Row, Col, Typography } from 'antd';
+import Link from 'next/link';
+import {
+  KeyOutlined,
+  LinkOutlined,
+  CodeOutlined,
+  FileTextOutlined,
+  ToolOutlined,
+  ClockCircleOutlined,
+  DatabaseOutlined,
+} from '@ant-design/icons';
+
+const { Title, Paragraph } = Typography;
+
+interface ToolCardProps {
+  href: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+function ToolCard({ href, title, description, icon }: ToolCardProps) {
+  return (
+    <Link href={href}>
+      <Card hoverable className="h-full">
+        <Card.Meta
+          avatar={<span style={{ fontSize: 24 }}>{icon}</span>}
+          title={title}
+          description={description}
+        />
+      </Card>
+    </Link>
+  );
+}
+
+const tools = [
+  {
+    href: '/tools/base64',
+    title: 'Base64',
+    description: 'Base64 编码和解码工具',
+    icon: <KeyOutlined />,
+  },
+  {
+    href: '/tools/url-encoder',
+    title: 'URL 编码',
+    description: 'URL 组件编码和解码工具',
+    icon: <LinkOutlined />,
+  },
+  {
+    href: '/tools/json-formatter',
+    title: 'JSON 格式化',
+    description: 'JSON 格式化和验证工具',
+    icon: <CodeOutlined />,
+  },
+  {
+    href: '/tools/html-formatter',
+    title: 'HTML 格式化',
+    description: 'HTML 格式化和压缩工具',
+    icon: <FileTextOutlined />,
+  },
+  {
+    href: '/tools/sql-formatter',
+    title: 'SQL 格式化',
+    description: 'SQL 语句格式化工具',
+    icon: <DatabaseOutlined />,
+  },
+  {
+    href: '/tools/regex-tester',
+    title: '正则测试',
+    description: '正则表达式测试和调试工具',
+    icon: <ToolOutlined />,
+  },
+  {
+    href: '/tools/mermaid',
+    title: 'Mermaid',
+    description: 'Mermaid 语法图表编辑器',
+    icon: <CodeOutlined />,
+  },
+  {
+    href: '/tools/timestamp',
+    title: '时间戳',
+    description: '时间戳转换工具',
+    icon: <ClockCircleOutlined />,
+  },
+  {
+    href: '/tools/uuid',
+    title: 'UUID',
+    description: 'UUID 标识符生成工具',
+    icon: <KeyOutlined />,
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="space-y-6">
+      <div className="text-center">
+        <Title level={2}>开发者工具箱</Title>
+        <Paragraph className="text-gray-500">
+          为开发者精选的在线工具集合
+        </Paragraph>
+      </div>
+      <Row gutter={[16, 16]}>
+        {tools.map((tool) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={tool.href}>
+            <ToolCard {...tool} />
+          </Col>
+        ))}
+      </Row>
     </div>
   );
 }

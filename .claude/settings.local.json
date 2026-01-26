@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm config set:*)",
+      "Bash(npm search:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test run)",
+      "Bash(pnpm build)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm eslint)"
+    ]
+  }
+}
