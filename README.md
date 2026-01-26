@@ -4,40 +4,49 @@
 
 ## 功能特性
 
-- **字符串处理工具**
-  - Base64 编码/解码
-  - URL 编码/解码
-  - JSON 格式化/验证
-  - HTML 格式化/压缩
-  - SQL 格式化
-  - 正则表达式测试器
+### 字符串处理工具
+- **Base64** - Base64 编码/解码
+- **URL 编码** - URL 编码/解码
+- **JSON 格式化** - JSON 格式化、压缩、语法验证
+- **HTML 格式化** - HTML 格式化/压缩
+- **SQL 格式化** - SQL 语句格式化/压缩
+- **正则测试** - 正则表达式测试、匹配高亮、替换
 
-- **其他工具**
-  - Mermaid 图表编辑器
-  - 时间戳转换器
-  - UUID 生成器
+### 其他工具
+- **Mermaid** - Mermaid 图表编辑器，支持多种图表类型
+- **时间戳** - Unix 时间戳与日期字符串相互转换
+- **UUID** - UUID v1/v4/v5 生成器
 
-- **深色模式支持**
-  - 浅色/深色/系统自动三种模式
-  - 主题偏好持久化存储
+### 功能特性
+- **深色模式** - 浅色/深色/系统自动三种模式
+- **中英文切换** - 支持中文和英文界面
+- **主题持久化** - 主题偏好和语言设置自动保存
+- **响应式设计** - 完美适配桌面端和移动端
 
 ## 技术栈
 
-- **框架**: Next.js 16 (App Router)
-- **状态管理**: Redux Toolkit
-- **UI 组件库**: Ant Design v5
-- **样式**: Tailwind CSS v4
-- **测试**: Vitest
+| 技术 | 用途 |
+|------|------|
+| Next.js 16 | React 框架 (App Router) |
+| Redux Toolkit | 全局状态管理 |
+| Ant Design v5 | UI 组件库 |
+| Tailwind CSS v4 | 样式框架 |
+| Vitest | 单元测试 |
+| TypeScript | 类型安全 |
 
 ## 快速开始
 
-首先安装依赖：
+### 环境要求
+- Node.js 18+
+- pnpm 9+
+
+### 安装依赖
 
 ```bash
 pnpm install
 ```
 
-然后启动开发服务器：
+### 启动开发服务器
 
 ```bash
 pnpm dev
@@ -47,58 +56,50 @@ pnpm dev
 
 ## 可用命令
 
-```bash
-# 开发服务器
-pnpm dev
-
-# 构建生产版本
-pnpm build
-
-# 启动生产服务器
-pnpm start
-
-# 运行测试
-pnpm test
-
-# 运行测试并生成覆盖率报告
-pnpm test:coverage
-```
+| 命令 | 描述 |
+|------|------|
+| `pnpm dev` | 启动开发服务器 (热重载) |
+| `pnpm build` | 构建生产版本 |
+| `pnpm start` | 启动生产服务器 |
+| `pnpm lint` | 运行代码检查 |
+| `pnpm test` | 运行单元测试 |
+| `pnpm test:coverage` | 运行测试并生成覆盖率报告 |
 
 ## 项目结构
 
 ```
 t-tool/
-├── app/                        # Next.js 应用目录
-│   ├── layout.tsx             # 根布局，包含 Redux 和 Ant Design Provider
-│   ├── page.tsx               # 首页
-│   ├── globals.css            # 全局样式
-│   ├── providers.tsx          # Redux + Ant Design Provider 组件
-│   └── tools/                 # 工具页面
-│       ├── base64/            # Base64 工具
-│       ├── url-encoder/       # URL 编码工具
-│       ├── json-formatter/    # JSON 格式化工具
-│       ├── html-formatter/    # HTML 格式化工具
-│       ├── sql-formatter/     # SQL 格式化工具
-│       ├── regex-tester/      # 正则测试工具
-│       ├── mermaid/           # Mermaid 编辑器
-│       ├── timestamp/         # 时间戳转换器
-│       └── uuid/              # UUID 生成器
-├── lib/                       # 库文件
-│   └── store/                 # Redux 状态管理
-│       ├── index.ts           # Store 配置
-│       ├── hooks.ts           # Typed Redux hooks
-│       └── slices/            # Redux slices
-│           └── themeSlice.ts  # 主题状态管理
-├── components/                # React 组件
-│   └── ui/                    # UI 组件
-│       ├── Layout.tsx         # 应用布局组件
-│       └── ThemeToggle.tsx    # 主题切换按钮
-├── hooks/                     # 自定义 Hooks
-│   ├── useTheme.ts            # 主题管理 Hook
-│   ├── useThemeInit.ts        # 主题初始化 Hook
-│   └── useLocalStorage.ts     # Local Storage Hook
-├── utils/                     # 工具函数
-│   ├── string/                # 字符串处理工具
+├── app/                           # Next.js 应用目录
+│   ├── layout.tsx                 # 根布局
+│   ├── page.tsx                   # 首页
+│   ├── globals.css                # 全局样式 (Tailwind CSS v4)
+│   ├── providers.tsx              # Redux + Ant Design Provider
+│   └── tools/                     # 工具页面
+│       ├── base64/                # Base64 工具
+│       ├── url-encoder/           # URL 编码工具
+│       ├── json-formatter/        # JSON 格式化工具
+│       ├── html-formatter/        # HTML 格式化工具
+│       ├── sql-formatter/         # SQL 格式化工具
+│       ├── regex-tester/          # 正则测试工具
+│       ├── mermaid/               # Mermaid 编辑器
+│       ├── timestamp/             # 时间戳转换器
+│       └── uuid/                  # UUID 生成器
+├── components/                    # React 组件
+│   └── ui/                        # UI 组件
+│       ├── Layout.tsx             # 应用布局组件
+│       ├── ThemeToggle.tsx        # 主题切换按钮
+│       ├── LanguageSwitcher.tsx   # 语言切换按钮
+│       └── ToolCard.tsx           # 工具卡片组件
+├── contexts/                      # React Context
+│   └── I18nContext.tsx            # 国际化上下文
+├── lib/                           # 库文件
+│   └── store/                     # Redux Store
+│       ├── index.ts               # Store 配置
+│       ├── hooks.ts               # Typed Redux hooks
+│       └── slices/
+│           └── themeSlice.ts      # 主题状态管理
+├── utils/                         # 工具函数
+│   ├── string/                    # 字符串处理
 │   │   ├── base64.ts
 │   │   ├── url.ts
 │   │   ├── json.ts
@@ -106,15 +107,32 @@ t-tool/
 │   │   └── regex.ts
 │   ├── sql/
 │   │   └── formatter.ts
-│   └── other/                 # 其他工具
+│   └── other/                     # 其他工具
 │       ├── mermaid.ts
 │       ├── timestamp.ts
 │       └── uuid.ts
-└── tests/                     # 测试文件
-    ├── string/
-    └── other/
+├── tests/                         # 测试文件
+│   ├── string/
+│   └── other/
+├── CLAUDE.md                      # Claude Code 指导文件
+└── README.md                      # 中文说明文档
+└── README_EN.md                   # English documentation
 ```
+
+## 测试覆盖
+
+项目使用 Vitest 进行单元测试，当前测试覆盖：
+
+- Base64 编码/解码 (6 tests)
+- URL 编码/解码 (7 tests)
+- JSON 格式化/验证 (7 tests)
+- HTML 格式化/压缩 (5 tests)
+- SQL 格式化/压缩 (19 tests)
+- 正则表达式 (8 tests)
+- 时间戳转换 (6 tests)
+- UUID 生成 (10 tests)
+- Mermaid 工具 (10 tests)
 
 ## 许可证
 
-MIT
+MIT License
