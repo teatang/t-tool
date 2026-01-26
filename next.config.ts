@@ -5,8 +5,9 @@ const nextConfig: NextConfig = {
   output: 'export',
 
   // Base path - set this to your repo name for GitHub Pages
-  // For repository at https://github.com/username/t-tool, use '/t-tool'
-  basePath: '/t-tool',
+  // If using custom domain that already points to the repo folder, set to empty string ''
+  // For repository at https://github.com/username/t-tool with custom domain, use ''
+  basePath: '',
 
   // Disable image optimization (not supported in static export)
   images: {
@@ -16,11 +17,6 @@ const nextConfig: NextConfig = {
   // Disable TypeScript errors in build
   typescript: {
     ignoreBuildErrors: true,
-  },
-
-  // Disable ESLint errors in build
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 

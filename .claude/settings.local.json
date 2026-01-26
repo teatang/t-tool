@@ -22,7 +22,8 @@
       "Bash(node:*)",
       "Bash(npm install:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(pnpm eslint:*)"
+      "Bash(pnpm eslint:*)",
+      "Bash(grep:*)"
     ]
   }
 }
