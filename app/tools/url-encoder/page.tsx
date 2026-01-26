@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { Card, Input, Button, Space, Typography, Segmented } from 'antd';
-import { CopyOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CopyOutlined, ReloadOutlined, LinkOutlined } from '@ant-design/icons';
 import { urlEncode, urlDecode } from '@/utils/string/url';
+import { useI18n } from '@/contexts/I18nContext';
+
+// 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
+export const dynamic = 'force-dynamic';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -11,6 +15,7 @@ const { TextArea } = Input;
 type Mode = 'encode' | 'decode';
 
 export default function UrlEncoderPage() {
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>('encode');
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -36,39 +41,39 @@ export default function UrlEncoderPage() {
 
   return (
     <div className="space-y-4">
-      <Title level={3}>URL 编码/解码</Title>
+      <Title level={3}><LinkOutlined /> {t('tools.urlEncoder.title')}</Title>
       <Segmented
         options={[
-          { label: '编码', value: 'encode' },
-          { label: '解码', value: 'decode' },
+          { label: t('tools.urlEncoder.encode'), value: 'encode' },
+          { label: t('tools.urlEncoder.decode'), value: 'decode' },
         ]}
         value={mode}
         onChange={(val) => setMode(val as Mode)}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card title="输入" size="small">
+        <Card title={t('common.input')} size="small">
           <TextArea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={10}
-            placeholder="请输入要编码/解码的 URL..."
+            placeholder={t('tools.urlEncoder.placeholder')}
           />
         </Card>
-        <Card title="输出" size="small" extra={
+        <Card title={t('common.output')} size="small" extra={
           <Space>
             <Button icon={<CopyOutlined />} onClick={handleCopy} />
             <Button icon={<ReloadOutlined />} onClick={handleSwap} />
           </Space>
         }>
-          <TextArea value={output} rows={10} readOnly placeholder="结果将显示在这里..." />
+          <TextArea value={output} rows={10} readOnly placeholder={t('tools.urlEncoder.resultPlaceholder')} />
         </Card>
       </div>
       <Space>
         <Button type="primary" onClick={handleTransform}>
-          {mode === 'encode' ? '编码' : '解码'}
+          {mode === 'encode' ? t('tools.urlEncoder.encode') : t('tools.urlEncoder.decode')}
         </Button>
         <Button onClick={() => { setInput(''); setOutput(''); }}>
-          清空
+          {t('common.clear')}
         </Button>
       </Space>
     </div>

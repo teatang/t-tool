@@ -1,16 +1,22 @@
 'use client';
 
+import { useI18n } from '@/contexts/I18nContext';
 import { Card, Row, Col, Typography } from 'antd';
 import Link from 'next/link';
 import {
-  KeyOutlined,
+  LockOutlined,
   LinkOutlined,
   CodeOutlined,
   FileTextOutlined,
-  ToolOutlined,
-  ClockCircleOutlined,
   DatabaseOutlined,
+  ExperimentOutlined,
+  BlockOutlined,
+  ClockCircleOutlined,
+  IdcardOutlined,
 } from '@ant-design/icons';
+
+// 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
+export const dynamic = 'force-dynamic';
 
 const { Title, Paragraph } = Typography;
 
@@ -35,70 +41,27 @@ function ToolCard({ href, title, description, icon }: ToolCardProps) {
   );
 }
 
-const tools = [
-  {
-    href: '/tools/base64',
-    title: 'Base64',
-    description: 'Base64 编码和解码工具',
-    icon: <KeyOutlined />,
-  },
-  {
-    href: '/tools/url-encoder',
-    title: 'URL 编码',
-    description: 'URL 组件编码和解码工具',
-    icon: <LinkOutlined />,
-  },
-  {
-    href: '/tools/json-formatter',
-    title: 'JSON 格式化',
-    description: 'JSON 格式化和验证工具',
-    icon: <CodeOutlined />,
-  },
-  {
-    href: '/tools/html-formatter',
-    title: 'HTML 格式化',
-    description: 'HTML 格式化和压缩工具',
-    icon: <FileTextOutlined />,
-  },
-  {
-    href: '/tools/sql-formatter',
-    title: 'SQL 格式化',
-    description: 'SQL 语句格式化工具',
-    icon: <DatabaseOutlined />,
-  },
-  {
-    href: '/tools/regex-tester',
-    title: '正则测试',
-    description: '正则表达式测试和调试工具',
-    icon: <ToolOutlined />,
-  },
-  {
-    href: '/tools/mermaid',
-    title: 'Mermaid',
-    description: 'Mermaid 语法图表编辑器',
-    icon: <CodeOutlined />,
-  },
-  {
-    href: '/tools/timestamp',
-    title: '时间戳',
-    description: '时间戳转换工具',
-    icon: <ClockCircleOutlined />,
-  },
-  {
-    href: '/tools/uuid',
-    title: 'UUID',
-    description: 'UUID 标识符生成工具',
-    icon: <KeyOutlined />,
-  },
-];
+export default function HomePage() {
+  const { t } = useI18n();
 
-export default function Home() {
+  const tools = [
+    { href: '/tools/base64', title: 'Base64', description: t('tools.base64.title'), icon: <LockOutlined /> },
+    { href: '/tools/url-encoder', title: 'URL 编码', description: t('tools.urlEncoder.title'), icon: <LinkOutlined /> },
+    { href: '/tools/json-formatter', title: 'JSON 格式化', description: t('tools.jsonFormatter.title'), icon: <CodeOutlined /> },
+    { href: '/tools/html-formatter', title: 'HTML 格式化', description: t('tools.htmlFormatter.title'), icon: <FileTextOutlined /> },
+    { href: '/tools/sql-formatter', title: 'SQL 格式化', description: t('tools.sqlFormatter.title'), icon: <DatabaseOutlined /> },
+    { href: '/tools/regex-tester', title: '正则测试', description: t('tools.regexTester.title'), icon: <ExperimentOutlined /> },
+    { href: '/tools/mermaid', title: 'Mermaid', description: t('tools.mermaid.title'), icon: <BlockOutlined /> },
+    { href: '/tools/timestamp', title: '时间戳', description: t('tools.timestamp.title'), icon: <ClockCircleOutlined /> },
+    { href: '/tools/uuid', title: 'UUID', description: t('tools.uuid.title'), icon: <IdcardOutlined /> },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <Title level={2}>开发者工具箱</Title>
+        <Title level={2}>{t('home.title')}</Title>
         <Paragraph className="text-gray-500">
-          为开发者精选的在线工具集合
+          {t('home.subtitle')}
         </Paragraph>
       </div>
       <Row gutter={[16, 16]}>

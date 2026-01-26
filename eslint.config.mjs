@@ -13,9 +13,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
-  // Disable set-state-in-effect rule for tool pages (intentional pattern for computed values)
+  // Disable set-state-in-effect rule for tool pages and components that need it
   {
-    files: ["app/tools/**/page.tsx", "hooks/**", "lib/store/slices/**"],
+    files: ["app/tools/**/page.tsx", "hooks/**", "lib/store/slices/**", "app/AntdRegistry.tsx", "app/providers.tsx", "contexts/**"],
     rules: {
       "react-hooks/set-state-in-effect": "off",
     },

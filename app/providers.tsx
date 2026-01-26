@@ -6,6 +6,8 @@ import { AppLayout } from '@/components/ui/Layout';
 import { ConfigProvider, theme } from 'antd';
 import { useAppSelector } from '@/lib/store/hooks';
 import { useThemeInit } from '@/hooks/useThemeInit';
+import { I18nProvider } from '@/contexts/I18nContext';
+import { AntdRegistry } from './AntdRegistry';
 
 function AntdProvider({ children }: { children: React.ReactNode }) {
   const isDark = useAppSelector((state) => state.theme.isDark);
@@ -30,9 +32,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
       <ThemeInitializer />
-      <AntdProvider>
-        <AppLayout>{children}</AppLayout>
-      </AntdProvider>
+      <I18nProvider>
+        <AntdProvider>
+          <AntdRegistry>
+            <AppLayout>{children}</AppLayout>
+          </AntdRegistry>
+        </AntdProvider>
+      </I18nProvider>
     </Provider>
   );
 }
+
+// 导出通用翻译键供客户端使用
+export const localeLabels = {
+  en: 'EN',
+  zh: '中文',
+} as const;

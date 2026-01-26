@@ -2,23 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { Card, Input, Button, Space, Typography, Alert, Select } from 'antd';
-import { CopyOutlined, FullscreenOutlined } from '@ant-design/icons';
+import { CopyOutlined, FullscreenOutlined, BlockOutlined } from '@ant-design/icons';
 import { mermaidParse } from '@/utils/other/mermaid';
+import { useI18n } from '@/contexts/I18nContext';
+
+// 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
+export const dynamic = 'force-dynamic';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-
-const diagramTypes = [
-  { value: 'graph', label: '流程图 (TD)' },
-  { value: 'flowchart', label: '流程图' },
-  { value: 'sequenceDiagram', label: '时序图' },
-  { value: 'classDiagram', label: '类图' },
-  { value: 'stateDiagram', label: '状态图' },
-  { value: 'erDiagram', label: 'ER 图' },
-  { value: 'pie', label: '饼图' },
-  { value: 'gantt', label: '甘特图' },
-  { value: 'journey', label: '用户旅程' },
-];
 
 const templates: Record<string, string> = {
   graph: `graph TD
@@ -69,12 +61,23 @@ const templates: Record<string, string> = {
     Testing :after implementation, 5d`,
 };
 
+const diagramTypes = [
+  { value: 'graph', label: 'Graph (TD)' },
+  { value: 'flowchart', label: 'Flowchart' },
+  { value: 'sequenceDiagram', label: 'Sequence Diagram' },
+  { value: 'classDiagram', label: 'Class Diagram' },
+  { value: 'stateDiagram', label: 'State Diagram' },
+  { value: 'erDiagram', label: 'ER Diagram' },
+  { value: 'pie', label: 'Pie Chart' },
+  { value: 'gantt', label: 'Gantt Chart' },
+];
+
 export default function MermaidPage() {
+  const { t } = useI18n();
   const [code, setCode] = useState('');
   const [diagramType, setDiagramType] = useState('graph');
   const [error, setError] = useState('');
 
-  
   useEffect(() => {
     if (!code.trim()) {
       setError('');
@@ -82,11 +85,11 @@ export default function MermaidPage() {
     }
     const result = mermaidParse(code);
     if (!result.success) {
-      setError(result.error || '语法错误');
+      setError(t('tools.mermaid.syntaxError'));
     } else {
       setError('');
     }
-  }, [code]);
+  }, [code, t]);
 
   const handleTemplateChange = (value: string) => {
     setDiagramType(value);
@@ -103,9 +106,9 @@ export default function MermaidPage() {
 
   return (
     <div className="space-y-4">
-      <Title level={3}>Mermaid 图表编辑器</Title>
+      <Title level={3}><BlockOutlined /> {t('tools.mermaid.title')}</Title>
       <div className="flex items-center gap-4">
-        <Text>模板:</Text>
+        <Text>{t('tools.mermaid.template')}</Text>
         <Select
           value={diagramType}
           onChange={handleTemplateChange}
@@ -114,7 +117,7 @@ export default function MermaidPage() {
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="编辑器" size="small" extra={
+        <Card title={t('tools.mermaid.editor')} size="small" extra={
           <Space>
             <Button icon={<CopyOutlined />} onClick={handleCopy} />
             <Button icon={<FullscreenOutlined />} onClick={handleFullscreen} />
@@ -124,27 +127,27 @@ export default function MermaidPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             rows={15}
-            placeholder="请输入 Mermaid 图表代码..."
+            placeholder={t('tools.mermaid.placeholder')}
             style={{ fontFamily: 'monospace' }}
           />
         </Card>
-        <Card title="预览" size="small">
+        <Card title={t('tools.mermaid.preview')} size="small">
           <div className="min-h-[300px] flex items-center justify-center">
             {error ? (
-              <Alert type="error" message="语法错误" description={error} />
+              <Alert type="error" message={t('tools.mermaid.syntaxError')} description={error} />
             ) : code ? (
               <div className="text-center text-gray-500">
-                <Text>图表预览将显示在这里</Text>
+                <Text>{t('tools.mermaid.previewPlaceholder')}</Text>
                 <br />
-                <Text type="secondary">使用 Mermaid 在线编辑器查看完整预览</Text>
+                <Text type="secondary">{t('tools.mermaid.previewNote')}</Text>
               </div>
             ) : (
-              <Text type="secondary">请输入 Mermaid 代码查看预览</Text>
+              <Text type="secondary">{t('tools.mermaid.enterCode')}</Text>
             )}
           </div>
         </Card>
       </div>
-      {error && <Alert type="error" message="语法错误" description={error} showIcon />}
+      {error && <Alert type="error" message={t('tools.mermaid.syntaxError')} description={error} showIcon />}
     </div>
   );
 }

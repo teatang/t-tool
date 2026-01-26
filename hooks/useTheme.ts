@@ -11,21 +11,18 @@ export function useTheme() {
   const dispatch = useAppDispatch();
   const { mode, isDark } = useAppSelector((state) => state.theme);
 
-  // 同步主题状态到 DOM 和 localStorage
+  // 同步主题状态到 localStorage
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(isDark ? 'dark' : 'light');
     localStorage.setItem('theme', mode);
-  }, [isDark, mode]);
+  }, [mode]);
 
   // 监听系统主题变化（仅在系统模式下生效）
   useEffect(() => {
+    if (mode !== 'system') return;
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
-      if (mode === 'system') {
-        dispatch(setThemeMode(mode));
-      }
+      dispatch(setThemeMode('system'));
     };
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);

@@ -10,7 +10,15 @@
       "Bash(pnpm build)",
       "Bash(pnpm add:*)",
       "Bash(pnpm test:*)",
-      "Bash(pnpm eslint)"
+      "Bash(pnpm eslint)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm dev)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)",
+      "Bash(git rm:*)",
+      "Bash(git config:*)",
+      "Bash(git reset:*)",
+      "Bash(git add:*)"
     ]
   }
 }

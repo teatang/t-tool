@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import { Card, Input, Button, Space, Typography, Row, Col, Select, Table, Tag } from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, IdcardOutlined } from '@ant-design/icons';
 import { generateUUID, generateMultipleUUIDs, uuidVersions, isValidUUID } from '@/utils/other/uuid';
+import { useI18n } from '@/contexts/I18nContext';
+
+// 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
+export const dynamic = 'force-dynamic';
 
 const { Title, Text } = Typography;
 
 export default function UuidPage() {
+  const { t } = useI18n();
   const [version, setVersion] = useState<number>(4);
   const [generatedUUIDs, setGeneratedUUIDs] = useState<string[]>([]);
   const [batchCount, setBatchCount] = useState(10);
@@ -34,6 +39,11 @@ export default function UuidPage() {
     setGeneratedUUIDs(generatedUUIDs.filter((_, i) => i !== index));
   };
 
+  const versionOptions = uuidVersions.map(v => ({
+    value: v.version,
+    label: `UUID v${v.version}: ${t(`tools.uuid.v${v.version}`)}`,
+  }));
+
   const columns = [
     {
       title: '#',
@@ -50,17 +60,17 @@ export default function UuidPage() {
       ),
     },
     {
-      title: '有效',
+      title: t('common.valid'),
       key: 'valid',
       width: 80,
       render: (_: unknown, record: { uuid: string }) => (
         <Tag color={isValidUUID(record.uuid) ? 'success' : 'error'}>
-          {isValidUUID(record.uuid) ? '是' : '否'}
+          {isValidUUID(record.uuid) ? t('common.yes') : t('common.no')}
         </Tag>
       ),
     },
     {
-      title: '操作',
+      title: t('common.action'),
       key: 'action',
       width: 80,
       render: (_: unknown, __: unknown, index: number) => (
@@ -76,22 +86,22 @@ export default function UuidPage() {
 
   return (
     <div className="space-y-4">
-      <Title level={3}>UUID 生成器</Title>
+      <Title level={3}><IdcardOutlined /> {t('tools.uuid.title')}</Title>
       <Row gutter={16}>
         <Col xs={24} md={8}>
-          <Card title="设置" size="small">
+          <Card title={t('common.settings')} size="small">
             <Space direction="vertical" style={{ width: '100%' }}>
               <div>
-                <Text strong>版本:</Text>
+                <Text strong>{t('common.version')}:</Text>
                 <Select
                   value={version}
                   onChange={setVersion}
-                  options={uuidVersions}
+                  options={versionOptions}
                   style={{ width: '100%', marginTop: 8 }}
                 />
               </div>
               <div>
-                <Text strong>批量数量:</Text>
+                <Text strong>{t('common.batchCount')}:</Text>
                 <Input
                   type="number"
                   min={1}
@@ -105,18 +115,18 @@ export default function UuidPage() {
           </Card>
         </Col>
         <Col xs={24} md={16}>
-          <Card title="生成" size="small">
+          <Card title={t('tools.uuid.generate')} size="small">
             <Space wrap>
               <Button type="primary" icon={<PlusOutlined />} onClick={handleGenerate}>
-                生成一个
+                {t('common.generateOne')}
               </Button>
               <Button icon={<PlusOutlined />} onClick={handleBatchGenerate}>
-                生成 {batchCount} 个
+                {t('common.generateCount', { count: batchCount })}
               </Button>
               {generatedUUIDs.length > 0 && (
                 <>
-                  <Button onClick={handleCopyAll}>复制全部</Button>
-                  <Button danger onClick={handleClear}>清空</Button>
+                  <Button onClick={handleCopyAll}>{t('common.copyAll')}</Button>
+                  <Button danger onClick={handleClear}>{t('common.clear')}</Button>
                 </>
               )}
             </Space>
@@ -124,7 +134,7 @@ export default function UuidPage() {
         </Col>
       </Row>
       {generatedUUIDs.length > 0 && (
-        <Card title={`已生成 UUID (${generatedUUIDs.length})`} size="small">
+        <Card title={t('tools.uuid.generatedUuids', { count: generatedUUIDs.length })} size="small">
           <Table
             dataSource={generatedUUIDs.map((uuid, index) => ({ uuid, key: index }))}
             columns={columns}
@@ -133,12 +143,12 @@ export default function UuidPage() {
           />
         </Card>
       )}
-      <Card title="版本说明" size="small">
+      <Card title={t('tools.uuid.info')} size="small">
         <Row gutter={16}>
           {uuidVersions.map((v) => (
             <Col xs={24} sm={12} md={6} key={v.version}>
               <Text strong>UUID v{v.version}:</Text>
-              <div><Text type="secondary">{v.name}</Text></div>
+              <div><Text type="secondary">{t(`tools.uuid.v${v.version}`)}</Text></div>
             </Col>
           ))}
         </Row>

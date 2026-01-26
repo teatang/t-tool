@@ -11,13 +11,14 @@ interface ThemeState {
 
 /**
  * 获取初始主题模式
- * 优先从 localStorage 读取，否则默认使用系统设置
+ * 优先从 localStorage 读取，否则默认浅色（避免 hydration 不匹配）
  */
 const getInitialTheme = (): ThemeMode => {
-  if (typeof window === 'undefined') return 'system';
+  // SSR 时使用固定默认值，避免 hydration 不匹配
+  if (typeof window === 'undefined') return 'light';
   const saved = localStorage.getItem('theme') as ThemeMode | null;
   if (saved) return saved;
-  return 'system';
+  return 'light';
 };
 
 /**
@@ -28,6 +29,7 @@ const getInitialTheme = (): ThemeMode => {
 const getIsDark = (mode: ThemeMode): boolean => {
   if (mode === 'light') return false;
   if (mode === 'dark') return true;
+  // system 模式在 SSR 时默认为浅色
   if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 };

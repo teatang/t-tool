@@ -1,0 +1,28 @@
+# Configure Git to handle line endings consistently
+# Use LF for all files to avoid CRLF conversion warnings on Windows
+
+# Treat all files as text, but skip binary files
+* text=auto eol=lf
+
+# Ensure specific file types use LF
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.json text eol=lf
+*.css  text eol=lf
+*.mjs  text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+
+# Binary files that should not be converted
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.svg  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary

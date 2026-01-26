@@ -18,13 +18,14 @@ export const metadata: Metadata = {
   description: "A collection of useful developer tools",
 };
 
+// Root layout - wraps all pages with Providers
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
