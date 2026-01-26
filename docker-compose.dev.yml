@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  t-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: t-tool-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: pnpm dev
+
+volumes:
+  node_modules:
