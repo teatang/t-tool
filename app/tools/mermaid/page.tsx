@@ -91,6 +91,7 @@ export default function MermaidPage() {
     if (!code && diagramType && templates[diagramType]) {
       setCode(templates[diagramType]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 验证语法
@@ -102,10 +103,11 @@ export default function MermaidPage() {
     const result = mermaidValidate(code);
     if (!result.success) {
       setError(result.error || t('tools.mermaid.syntaxError'));
-    } else {
+    } else if (!renderResult || !error) {
+      // Only clear error if there was no previous error
       setError('');
     }
-  }, [code, t]);
+  }, [code, t, renderResult, error]);
 
   // 渲染图表（防抖）
   useEffect(() => {
@@ -140,7 +142,7 @@ export default function MermaidPage() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [code]);
+  }, [code, error, t]);
 
   const handleTemplateChange = (value: string) => {
     setDiagramType(value);

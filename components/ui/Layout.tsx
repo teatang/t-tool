@@ -17,6 +17,7 @@ import {
   ClockCircleOutlined,
   IdcardOutlined,
   AppstoreOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -116,17 +117,35 @@ export function AppLayout({ children }: AppLayoutProps) {
       >
         {/* Logo 区域 */}
         <div style={{
-          height: 32,
-          margin: 16,
-          background: 'rgba(255, 255, 255, 0.2)',
+          height: 48,
+          margin: '16px 12px',
+          background: isDark
+            ? 'linear-gradient(90deg, #1f2d3d 0%, #262b35 100%)'
+            : 'linear-gradient(90deg, #e6f4ff 0%, #bae0ff 100%)',
+          borderRadius: 8,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontWeight: 'bold',
-          color: '#fff',
-          fontSize: collapsed ? 12 : 16,
+          gap: 8,
+          boxShadow: isDark
+            ? '0 2px 8px rgba(0,0,0,0.3)'
+            : '0 2px 8px rgba(0,0,0,0.08)',
+          border: isDark ? '1px solid #30363d' : '1px solid #91caff',
         }}>
-          {collapsed ? 'TT' : (isZh ? '工具箱' : 'Tools')}
+          <ToolOutlined style={{
+            color: isDark ? '#8ecae6' : '#1677ff',
+            fontSize: 20,
+          }} />
+          {!collapsed && (
+            <span style={{
+              fontWeight: 600,
+              color: isDark ? '#ffffff' : '#1677ff',
+              fontSize: 15,
+              letterSpacing: 1,
+            }}>
+              {isZh ? '工具箱' : 'TOOLS'}
+            </span>
+          )}
         </div>
         {/* 导航菜单 */}
         <Menu

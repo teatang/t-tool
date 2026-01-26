@@ -178,7 +178,7 @@ export default function RegexTesterPage() {
           />
         </Card>
       )}
-      <Space>
+      <Space className="mt-4">
         <Button onClick={() => { setTestStr(''); setReplaceStr('[$&]'); setMatches([]); setReplaceResult(''); }}>
           {t('common.clear')}
         </Button>

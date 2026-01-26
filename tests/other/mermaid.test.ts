@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // Mock mermaid module - we can't use actual mermaid in Node test environment
 // as it requires DOM

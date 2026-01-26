@@ -33,10 +33,9 @@ export function sqlFormat(input: string): string {
     result = result.replace(regex, '\n' + keyword + '\n');
   });
 
-  // 处理换行后的缩进和清理
+  // 处理换行后的清理
   const lines = result.split('\n');
   const formattedLines: string[] = [];
-  const indentStr = '  ';
 
   for (const line of lines) {
     const trimmed = line.trim();
