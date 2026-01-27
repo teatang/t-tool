@@ -23,7 +23,8 @@
       "Bash(npm install:*)",
       "mcp__ide__getDiagnostics",
       "Bash(pnpm eslint:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pnpm lint)"
     ]
   }
 }

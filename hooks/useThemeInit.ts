@@ -18,9 +18,8 @@ export function useThemeInit() {
     if (savedMode) {
       dispatch(setThemeMode(savedMode));
     } else {
-      // 否则根据系统设置判断
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      dispatch(setThemeMode(systemDark ? 'dark' : 'light'));
+      // 默认跟随系统模式
+      dispatch(setThemeMode('system'));
     }
   }, [dispatch]);
 }

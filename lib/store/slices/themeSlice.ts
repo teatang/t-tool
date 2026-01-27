@@ -11,14 +11,14 @@ interface ThemeState {
 
 /**
  * 获取初始主题模式
- * 优先从 localStorage 读取，否则默认浅色（避免 hydration 不匹配）
+ * 优先从 localStorage 读取，否则默认跟随系统
  */
 const getInitialTheme = (): ThemeMode => {
   // SSR 时使用固定默认值，避免 hydration 不匹配
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'system';
   const saved = localStorage.getItem('theme') as ThemeMode | null;
   if (saved) return saved;
-  return 'light';
+  return 'system';
 };
 
 /**
