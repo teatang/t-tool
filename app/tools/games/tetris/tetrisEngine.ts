@@ -33,17 +33,18 @@ export type Board = (string | null)[][];
 export class TetrisEngine {
   private board: Board;
   private currentPiece: Piece | null;
-  private nextPieceType: TetrominoType;
+  private pieceQueue: TetrominoType[]; // 方块队列
   private readonly tetrominoes: Record<TetrominoType, TetrominoShape>;
 
   constructor(
     board?: Board,
     currentPiece?: Piece | null,
-    nextPieceType?: TetrominoType
+    pieceQueue?: TetrominoType[]
   ) {
     this.board = board || this.createEmptyBoard();
     this.currentPiece = currentPiece || null;
-    this.nextPieceType = nextPieceType || this.getRandomTetromino();
+    // 初始化队列，至少保留7个方块
+    this.pieceQueue = pieceQueue || Array(7).fill(null).map(() => this.getRandomTetromino());
 
     this.tetrominoes = {
       I: { shape: [[1, 1, 1, 1]], color: '#00d4ff' },
@@ -82,12 +83,17 @@ export class TetrisEngine {
    * 生成新方块
    */
   spawnPiece(): void {
+    if (this.pieceQueue.length === 0) {
+      this.pieceQueue.push(this.getRandomTetromino());
+    }
     this.currentPiece = {
-      type: this.nextPieceType,
+      type: this.pieceQueue[0],
       x: Math.floor(BOARD_WIDTH / 2) - 1,
       y: 0,
     };
-    this.nextPieceType = this.getRandomTetromino();
+    // 移除已使用的方块，并补充新方块
+    this.pieceQueue.shift();
+    this.pieceQueue.push(this.getRandomTetromino());
   }
 
   /**
@@ -125,10 +131,18 @@ export class TetrisEngine {
   }
 
   /**
-   * 获取下一个方块类型
+   * 获取下一个方块类型（队列中的第一个）
    */
   getNextPieceType(): TetrominoType {
-    return this.nextPieceType;
+    return this.pieceQueue[0];
+  }
+
+  /**
+   * 获取方块队列
+   * @param count 获取的数量，默认1个
+   */
+  getPieceQueue(count: number = 1): TetrominoType[] {
+    return this.pieceQueue.slice(0, count);
   }
 
   /**
@@ -318,7 +332,7 @@ export class TetrisEngine {
     return new TetrisEngine(
       this.board.map((row) => [...row]),
       this.currentPiece ? { ...this.currentPiece } : null,
-      this.nextPieceType
+      [...this.pieceQueue]
     );
   }
 }

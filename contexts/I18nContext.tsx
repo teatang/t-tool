@@ -161,6 +161,7 @@ const translations: Record<string, Record<string, string>> = {
     'tetris.next': '下一个',
     'tetris.controls': '方向键: ← → 移动, ↑ 旋转, ↓ 加速, 空格 硬降',
     'tetris.gameOver': '游戏结束！',
+    'tetris.previewCount': '预览方块数量',
 
     // menu groups
     'menu.stringTools': '字符串工具',
@@ -324,6 +325,7 @@ const translations: Record<string, Record<string, string>> = {
     'tetris.next': 'Next',
     'tetris.controls': 'Arrows: ← → move, ↑ rotate, ↓ fast, Space hard drop',
     'tetris.gameOver': 'Game Over!',
+    'tetris.previewCount': 'Preview Pieces',
 
     // menu groups
     'menu.stringTools': 'String Tools',

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, Button, Space, Statistic, Typography, message } from 'antd';
+import { Card, Button, Space, Statistic, Typography, message, Segmented } from 'antd';
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
@@ -11,6 +11,7 @@ import {
   DownOutlined,
   RotateLeftOutlined,
   VerticalAlignBottomOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { useI18n } from '@/contexts/I18nContext';
 import { TetrisEngine, TetrominoType, BOARD_WIDTH, BOARD_HEIGHT } from './tetrisEngine';
@@ -92,29 +93,64 @@ const drawGhostCell = (
 // 绘制下一个方块预览
 const drawNextPiece = (
   ctx: CanvasRenderingContext2D,
-  pieceType: TetrominoType,
+  pieceTypes: TetrominoType[],
   cellSize: number,
   isDark: boolean,
   t: (key: string) => string
 ) => {
-  const tetromino = TETROMINOES[pieceType];
+  const previewWidth = 100;
+  const previewHeight = 30 + pieceTypes.length * 50;
   const startX = BOARD_WIDTH * cellSize + 20;
   const startY = 30;
 
-  ctx.fillStyle = isDark ? '#2a2a2a' : '#fff';
-  ctx.fillRect(startX, startY, 80, 80);
+  // 背景面板
+  ctx.fillStyle = isDark ? '#1e1e1e' : '#f8f8f8';
+  ctx.fillRect(startX - 10, startY - 20, previewWidth, previewHeight);
 
-  ctx.fillStyle = isDark ? '#666' : '#999';
-  ctx.font = '12px sans-serif';
+  // 标题
+  ctx.fillStyle = isDark ? '#a0a0a0' : '#666';
+  ctx.font = '14px sans-serif';
   ctx.fillText(t('tetris.next'), startX, startY - 5);
 
-  for (let y = 0; y < tetromino.shape.length; y++) {
-    for (let x = 0; x < tetromino.shape[y].length; x++) {
-      if (tetromino.shape[y][x]) {
-        drawCell(ctx, (startX / cellSize) + x, (startY / cellSize) + y, tetromino.color, cellSize, isDark);
+  // 绘制每个方块
+  pieceTypes.forEach((pieceType, index) => {
+    const tetromino = TETROMINOES[pieceType];
+    const pieceY = startY + 15 + index * 45;
+
+    // 隔行背景
+    if (index % 2 === 0) {
+      ctx.fillStyle = isDark ? '#252525' : '#fff';
+      ctx.fillRect(startX - 5, pieceY - 5, previewWidth - 5, 40);
+    }
+
+    // 序号标签
+    ctx.fillStyle = isDark ? '#666' : '#999';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(`${index + 1}.`, startX - 5, pieceY + 20);
+
+    // 绘制方块（缩小尺寸以适应预览）
+    const scale = 0.7;
+    const offsetX = startX + 18;
+    const offsetY = pieceY + 5;
+
+    for (let y = 0; y < tetromino.shape.length; y++) {
+      for (let x = 0; x < tetromino.shape[y].length; x++) {
+        if (tetromino.shape[y][x]) {
+          const px = offsetX + x * cellSize * scale;
+          const py = offsetY + y * cellSize * scale;
+          const size = cellSize * scale - 1;
+
+          ctx.fillStyle = tetromino.color;
+          ctx.fillRect(px, py, size, size);
+
+          // 高光
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.fillRect(px, py, size, 2);
+          ctx.fillRect(px, py, 2, size);
+        }
       }
     }
-  }
+  });
 };
 
 /**
@@ -137,6 +173,7 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
   const [displayLines, setDisplayLines] = useState(0);
   const [displayLevel, setDisplayLevel] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [previewCount, setPreviewCount] = useState(1); // 预览方块数量
 
   // 绘制游戏
   const draw = useCallback(() => {
@@ -150,7 +187,7 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
     const cellSize = 24;
     const board = currentGame.getBoard();
     const currentPiece = currentGame.getCurrentPiece();
-    const nextPieceType = currentGame.getNextPieceType();
+    const nextPieces = currentGame.getPieceQueue(previewCount);
 
     // 清空画布
     ctx.fillStyle = isDark ? '#1a1a1a' : '#f5f5f5';
@@ -209,8 +246,8 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
     }
 
     // 绘制下一个方块预览
-    drawNextPiece(ctx, nextPieceType, cellSize, isDark, t);
-  }, [isDark, t]);
+    drawNextPiece(ctx, nextPieces, cellSize, isDark, t);
+  }, [isDark, t, previewCount]);
 
   // 游戏循环
   useEffect(() => {
@@ -419,6 +456,32 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
             />
           </Space>
         </Space>
+
+        {/* 预览设置 */}
+        <div style={{
+          marginTop: 16,
+          padding: 12,
+          background: isDark ? '#1a1a1a' : '#f5f5f5',
+          borderRadius: 4,
+        }}>
+          <Text style={{ color: isDark ? '#888' : '#666', fontSize: 12, display: 'block', marginBottom: 8 }}>
+            {t('tetris.previewCount') || '预览数量'}
+          </Text>
+          <Segmented
+            options={[
+              { label: '1', value: 1 },
+              { label: '2', value: 2 },
+              { label: '3', value: 3 },
+            ]}
+            value={previewCount}
+            onChange={(val) => {
+              setPreviewCount(val as number);
+              draw();
+            }}
+            onKeyDown={(e) => e.stopPropagation()}
+            block
+          />
+        </div>
 
         {/* 控制按钮 */}
         <Space direction="vertical" style={{ width: '100%' }}>
