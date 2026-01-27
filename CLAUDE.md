@@ -34,7 +34,17 @@ This is a Next.js 16 application using the App Router architecture with internat
   - `layout.tsx` - Root layout wrapping all pages
   - `globals.css` - Global styles with Tailwind CSS v4
   - `tools/` - Tool pages (e.g., `app/tools/regex-tester/page.tsx` = `/tools/regex-tester`)
+  - `tools/games/` - Mini games (e.g., `app/tools/games/tetris/page.tsx` = `/tools/games/tetris`)
   - `[locale]/` - i18n locale routes (zh/en)
+
+### Game Development
+- Games are located in `app/tools/games/`
+- Each game should have:
+  - `page.tsx` - Next.js page entry
+  - `GameName.tsx` - Main game component
+  - `gameEngine.ts` - Game logic class for unit testing
+- Unit tests go in `tests/games/` directory
+- Games must support dark/light mode via the `isDark` prop
 
 ### Key Configuration Files
 - `next.config.ts` - Next.js configuration

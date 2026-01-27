@@ -18,6 +18,8 @@ import {
   IdcardOutlined,
   AppstoreOutlined,
   ToolOutlined,
+  CrownOutlined,
+  GatewayOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -60,6 +62,15 @@ function getOtherToolItems(t: (key: string) => string) {
 }
 
 /**
+ * 获取迷你游戏菜单项
+ */
+function getMiniGameItems(t: (key: string) => string) {
+  return [
+    { key: '/tools/games/tetris', icon: <GatewayOutlined />, label: <Link href="/tools/games/tetris">{t('tetris.name')}</Link> },
+  ];
+}
+
+/**
  * 应用布局组件
  * 包含侧边栏导航、顶部栏和主要内容区域
  */
@@ -82,6 +93,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   // 其他工具菜单项
   const otherToolItems = useMemo(() => getOtherToolItems(t), [t]);
 
+  // 迷你游戏菜单项
+  const miniGameItems = useMemo(() => getMiniGameItems(t), [t]);
+
   // 主菜单配置
   const menuItems = [
     {
@@ -100,6 +114,12 @@ export function AppLayout({ children }: AppLayoutProps) {
       icon: <AppstoreOutlined />,
       label: t('menu.otherTools'),
       children: otherToolItems,
+    },
+    {
+      key: 'miniGames',
+      icon: <CrownOutlined />,
+      label: t('menu.miniGames'),
+      children: miniGameItems,
     },
   ];
 

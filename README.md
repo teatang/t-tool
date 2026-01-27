@@ -17,6 +17,9 @@
 - **时间戳** - Unix 时间戳与日期字符串相互转换
 - **UUID** - UUID v1/v4/v5 生成器
 
+### 休闲游戏
+- **俄罗斯方块** - 经典俄罗斯方块游戏，支持深色/浅色模式
+
 ### 功能特性
 - **深色模式** - 浅色/深色/系统自动三种模式
 - **中英文切换** - 支持中文和英文界面
@@ -83,7 +86,9 @@ t-tool/
 │       ├── regex-tester/          # 正则测试工具
 │       ├── mermaid/               # Mermaid 编辑器
 │       ├── timestamp/             # 时间戳转换器
-│       └── uuid/                  # UUID 生成器
+│       ├── uuid/                  # UUID 生成器
+│       └── games/                 # 休闲游戏
+│           └── tetris/            # 俄罗斯方块
 ├── components/                    # React 组件
 │   └── ui/                        # UI 组件
 │       ├── Layout.tsx             # 应用布局组件
@@ -113,7 +118,9 @@ t-tool/
 │       └── uuid.ts
 ├── tests/                         # 测试文件
 │   ├── string/
-│   └── other/
+│   ├── other/
+│   └── games/                      # 游戏测试
+│       └── tetris.test.ts          # 俄罗斯方块测试
 ├── CLAUDE.md                      # Claude Code 指导文件
 └── README.md                      # 中文说明文档
 └── README_EN.md                   # English documentation

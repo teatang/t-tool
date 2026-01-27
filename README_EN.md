@@ -17,6 +17,9 @@ A collection of developer tools built with Next.js 16, Redux Toolkit, Ant Design
 - **Timestamp** - Unix timestamp and date string conversion
 - **UUID** - UUID v1/v4/v5 generator
 
+### Mini Games
+- **Tetris** - Classic Tetris game with dark/light mode support
+
 ### Key Features
 - **Dark Mode** - Light/Dark/System auto modes
 - **i18n Support** - Chinese and English interface
@@ -83,7 +86,9 @@ t-tool/
 │       ├── regex-tester/          # Regex tester tool
 │       ├── mermaid/               # Mermaid editor
 │       ├── timestamp/             # Timestamp converter
-│       └── uuid/                  # UUID generator
+│       ├── uuid/                  # UUID generator
+│       └── games/                 # Mini games
+│           └── tetris/            # Tetris game
 ├── components/                    # React components
 │   └── ui/                        # UI components
 │       ├── Layout.tsx             # App layout component
@@ -113,7 +118,9 @@ t-tool/
 │       └── uuid.ts
 ├── tests/                         # Test files
 │   ├── string/
-│   └── other/
+│   ├── other/
+│   └── games/                      # Game tests
+│       └── tetris.test.ts          # Tetris game tests
 ├── CLAUDE.md                      # Claude Code guidance
 ├── README.md                      # Chinese documentation
 └── README_EN.md                   # English documentation

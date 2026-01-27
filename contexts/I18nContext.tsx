@@ -147,9 +147,25 @@ const translations: Record<string, Record<string, string>> = {
     'tools.timestamp.name': '时间戳',
     'tools.uuid.name': 'UUID',
 
+    // tetris
+    'tetris.name': '俄罗斯方块',
+    'tetris.title': '俄罗斯方块',
+    'tetris.score': '得分',
+    'tetris.lines': '行数',
+    'tetris.level': '等级',
+    'tetris.start': '开始',
+    'tetris.pause': '暂停',
+    'tetris.restart': '重新开始',
+    'tetris.rotate': '旋转',
+    'tetris.hardDrop': '硬降',
+    'tetris.next': '下一个',
+    'tetris.controls': '方向键: ← → 移动, ↑ 旋转, ↓ 加速, 空格 硬降',
+    'tetris.gameOver': '游戏结束！',
+
     // menu groups
     'menu.stringTools': '字符串工具',
     'menu.otherTools': '其他工具',
+    'menu.miniGames': '休闲游戏',
   },
   en: {
     // common
@@ -294,9 +310,25 @@ const translations: Record<string, Record<string, string>> = {
     'tools.timestamp.name': 'Timestamp',
     'tools.uuid.name': 'UUID',
 
+    // tetris
+    'tetris.name': 'Tetris',
+    'tetris.title': 'Tetris',
+    'tetris.score': 'Score',
+    'tetris.lines': 'Lines',
+    'tetris.level': 'Level',
+    'tetris.start': 'Start',
+    'tetris.pause': 'Pause',
+    'tetris.restart': 'Restart',
+    'tetris.rotate': 'Rotate',
+    'tetris.hardDrop': 'Drop',
+    'tetris.next': 'Next',
+    'tetris.controls': 'Arrows: ← → move, ↑ rotate, ↓ fast, Space hard drop',
+    'tetris.gameOver': 'Game Over!',
+
     // menu groups
     'menu.stringTools': 'String Tools',
     'menu.otherTools': 'Other Tools',
+    'menu.miniGames': 'Mini Games',
   },
 };
 

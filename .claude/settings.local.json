@@ -24,7 +24,9 @@
       "mcp__ide__getDiagnostics",
       "Bash(pnpm eslint:*)",
       "Bash(grep:*)",
-      "Bash(pnpm lint)"
+      "Bash(pnpm lint)",
+      "Bash(pnpm test:coverage:*)",
+      "Bash(pnpm tsc:*)"
     ]
   }
 }
