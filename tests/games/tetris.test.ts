@@ -25,7 +25,8 @@ describe('TetrisEngine', () => {
     });
 
     it('应该生成下一个方块', () => {
-      const nextPiece = (game as unknown as { nextPieceType: TetrominoType }).nextPieceType;
+      const pieceQueue = game.getPieceQueue(1);
+      const nextPiece = pieceQueue[0];
       const validTypes: TetrominoType[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
       expect(validTypes).toContain(nextPiece);
     });

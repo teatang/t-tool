@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, Input, Button, Space, Typography, Row, Col, Select, Table, Tag } from 'antd';
-import { DeleteOutlined, PlusOutlined, IdcardOutlined } from '@ant-design/icons';
+import { Card, Input, Button, Space, Typography, Row, Col, Select, Table, Tag, Tooltip } from 'antd';
+import { DeleteOutlined, PlusOutlined, IdcardOutlined, CopyOutlined, CheckOutlined } from '@ant-design/icons';
 import { generateUUID, generateMultipleUUIDs, uuidVersions, isValidUUID } from '@/utils/other/uuid';
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -16,6 +16,7 @@ export default function UuidPage() {
   const [version, setVersion] = useState<number>(4);
   const [generatedUUIDs, setGeneratedUUIDs] = useState<string[]>([]);
   const [batchCount, setBatchCount] = useState(10);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const handleGenerate = () => {
     const uuid = generateUUID(version);
@@ -29,6 +30,12 @@ export default function UuidPage() {
 
   const handleCopyAll = () => {
     navigator.clipboard.writeText(generatedUUIDs.join('\n'));
+  };
+
+  const handleCopy = async (uuid: string, index: number) => {
+    await navigator.clipboard.writeText(uuid);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 1500);
   };
 
   const handleClear = () => {
@@ -55,8 +62,18 @@ export default function UuidPage() {
       title: 'UUID',
       dataIndex: 'uuid',
       key: 'uuid',
-      render: (uuid: string) => (
-        <div className="font-mono text-sm">{uuid}</div>
+      render: (uuid: string, __: unknown, index: number) => (
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm">{uuid}</span>
+          <Tooltip title={copiedIndex === index ? t('common.copy') : ''}>
+            <Button
+              type="text"
+              size="small"
+              icon={copiedIndex === index ? <CheckOutlined style={{ color: '#52c41a' }} /> : <CopyOutlined />}
+              onClick={() => handleCopy(uuid, index)}
+            />
+          </Tooltip>
+        </div>
       ),
     },
     {

@@ -13,11 +13,18 @@ const { Title, Text } = Typography;
 
 export default function TimestampPage() {
   const { t } = useI18n();
-  const [unixTimestamp, setUnixTimestamp] = useState('');
+  const [unixTimestamp, setUnixTimestamp] = useState(Date.now().toString());
   const [dateString, setDateString] = useState('');
   const [result, setResult] = useState<ReturnType<typeof timestampToDate> | null>(null);
   const [error, setError] = useState('');
   const isUpdatingFromRef = useRef<'unix' | 'date' | null>(null);
+
+  // 初始化时显示当前时间
+  useEffect(() => {
+    const now = getCurrentTimestamp();
+    setDateString(now.iso);
+    setResult(now);
+  }, []);
 
   // 从 Unix 时间戳更新
   const updateFromUnix = useCallback((ts: string) => {
@@ -31,7 +38,9 @@ export default function TimestampPage() {
       }
       return;
     }
-    const data = timestampToDate(num);
+    // 检测是否为秒级时间戳（小于10^12），如果是则转换为毫秒
+    const timestamp = num < 1000000000000 ? num * 1000 : num;
+    const data = timestampToDate(timestamp);
     setResult(data);
     isUpdatingFromRef.current = 'unix';
     setDateString(data.iso);

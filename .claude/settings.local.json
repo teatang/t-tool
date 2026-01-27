@@ -26,7 +26,8 @@
       "Bash(grep:*)",
       "Bash(pnpm lint)",
       "Bash(pnpm test:coverage:*)",
-      "Bash(pnpm tsc:*)"
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm exec:*)"
     ]
   }
 }
