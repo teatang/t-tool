@@ -11,7 +11,6 @@ import {
   DownOutlined,
   RotateLeftOutlined,
   VerticalAlignBottomOutlined,
-  SettingOutlined,
 } from '@ant-design/icons';
 import { useI18n } from '@/contexts/I18nContext';
 import { TetrisEngine, TetrominoType, BOARD_WIDTH, BOARD_HEIGHT } from './tetrisEngine';

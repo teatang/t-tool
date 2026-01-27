@@ -9,6 +9,17 @@ export interface RegexMatch {
   groups?: string[];  // 捕获组
 }
 
+// 检测可能导致回溯死循环的危险模式
+const DANGEROUS_PATTERNS = [
+  /\([^)]*\)\+/,           // 捕获组后跟 + (如 (abc)+ )
+  /\([^)]*\)\*/,           // 捕获组后跟 *
+  /\([^|]*\|[^)]*\)\+/,    // 选择结构后跟量词 (a|b)+
+  /\([^|]*\|[^)]*\)\*/,    // 选择结构后跟 *
+];
+
+// 超时时间（毫秒）
+const TIMEOUT_MS = 500;
+
 /**
  * 测试正则表达式匹配
  * 在文本中查找所有匹配项
@@ -21,17 +32,55 @@ export function regexTest(pattern: string, flags: string, text: string): {
   matches: RegexMatch[];
   error?: string;
 } {
+  // 快速检查空模式
+  if (!pattern) {
+    return { matches: [] };
+  }
+
+  // 检测危险模式（可能导致指数级回溯）
+  for (const dangerous of DANGEROUS_PATTERNS) {
+    if (dangerous.test(pattern)) {
+      return { matches: [], error: 'Potentially dangerous pattern detected (possible exponential backtracking)' };
+    }
+  }
+
+  // 检测简单危险模式（开头是量词）
+  const trimmedPattern = pattern.replace(/^\^/, '').trim();
+  if (/^[\*\+\?]/.test(trimmedPattern)) {
+    return { matches: [], error: 'Invalid regular expression: nothing to repeat' };
+  }
+
   try {
     const regex = new RegExp(pattern, flags);
     const matches: RegexMatch[] = [];
     let match;
+    let iterations = 0;
+    const MAX_ITERATIONS = 100000;
+
+    // 使用时间超时保护
+    const startTime = Date.now();
 
     while ((match = regex.exec(text)) !== null) {
+      // 检查超时
+      if (Date.now() - startTime > TIMEOUT_MS) {
+        return { matches, error: 'Execution timed out' };
+      }
+
+      iterations++;
+      if (iterations > MAX_ITERATIONS) {
+        return { matches, error: 'Too many matches' };
+      }
       matches.push({
         match: match[0],
         index: match.index,
         groups: match.slice(1).map((g) => g || ''),
       });
+
+      // 防止零长度无限匹配
+      if (match.index === regex.lastIndex && match[0].length === 0) {
+        regex.lastIndex++;
+        if (regex.lastIndex > text.length) break;
+      }
     }
 
     return { matches };
@@ -52,6 +101,24 @@ export function regexReplace(pattern: string, replacement: string, flags: string
   result: string;
   error?: string;
 } {
+  // 快速检查空模式
+  if (!pattern) {
+    return { result: text };
+  }
+
+  // 检测危险模式
+  for (const dangerous of DANGEROUS_PATTERNS) {
+    if (dangerous.test(pattern)) {
+      return { result: text, error: 'Potentially dangerous pattern detected' };
+    }
+  }
+
+  // 检测简单危险模式
+  const trimmedPattern = pattern.replace(/^\^/, '').trim();
+  if (/^[\*\+\?]/.test(trimmedPattern)) {
+    return { result: text, error: 'Invalid regular expression: nothing to repeat' };
+  }
+
   try {
     const regex = new RegExp(pattern, flags);
     return { result: text.replace(regex, replacement) };
@@ -70,6 +137,24 @@ export function regexGetPatternInfo(pattern: string): {
   isValid: boolean;
   error?: string;
 } {
+  // 快速检查空模式
+  if (!pattern) {
+    return { isValid: false, error: 'Empty pattern' };
+  }
+
+  // 检测危险模式
+  for (const dangerous of DANGEROUS_PATTERNS) {
+    if (dangerous.test(pattern)) {
+      return { isValid: false, error: 'Potentially dangerous pattern detected' };
+    }
+  }
+
+  // 检测简单危险模式
+  const trimmedPattern = pattern.replace(/^\^/, '').trim();
+  if (/^[\*\+\?]/.test(trimmedPattern)) {
+    return { isValid: false, error: 'Invalid regular expression: nothing to repeat' };
+  }
+
   try {
     new RegExp(pattern);
     return { isValid: true };

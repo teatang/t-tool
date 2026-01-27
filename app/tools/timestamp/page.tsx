@@ -13,7 +13,7 @@ const { Title, Text } = Typography;
 
 export default function TimestampPage() {
   const { t } = useI18n();
-  const [unixTimestamp, setUnixTimestamp] = useState(Date.now().toString());
+  const [unixTimestamp, setUnixTimestamp] = useState(() => Date.now().toString());
   const [dateString, setDateString] = useState('');
   const [result, setResult] = useState<ReturnType<typeof timestampToDate> | null>(null);
   const [error, setError] = useState('');
@@ -22,6 +22,7 @@ export default function TimestampPage() {
   // 初始化时显示当前时间
   useEffect(() => {
     const now = getCurrentTimestamp();
+    setUnixTimestamp(now.unix.toString());
     setDateString(now.iso);
     setResult(now);
   }, []);

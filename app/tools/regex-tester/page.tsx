@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, Input, Button, Space, Typography, Segmented, Table, Tag, Checkbox, Empty } from 'antd';
 import { CopyOutlined, ExperimentOutlined } from '@ant-design/icons';
-import { regexTest, regexReplace, regexGetPatternInfo, RegexMatch } from '@/utils/string/regex';
+import { regexGetPatternInfo, RegexMatch } from '@/utils/string/regex';
 import { useI18n } from '@/contexts/I18nContext';
 import { useAppSelector } from '@/lib/store/hooks';
 
@@ -31,6 +31,9 @@ const HIGHLIGHT_COLORS = {
   dark: ['#d4b106', '#73d13d'],   // 深色模式
 };
 
+// 超时时间（毫秒）
+const REGEX_TIMEOUT_MS = 300;
+
 export default function RegexTesterPage() {
   const { t } = useI18n();
   const isDark = useAppSelector((state) => state.theme?.isDark ?? false);
@@ -43,6 +46,9 @@ export default function RegexTesterPage() {
   const [replaceResult, setReplaceResult] = useState('');
   const [patternError, setPatternError] = useState('');
   const [isValid, setIsValid] = useState(true);
+
+  // 使用 ref 跟踪任务状态
+  const taskRef = useRef<{ cancelled: boolean; startTime: number }>({ cancelled: false, startTime: 0 });
 
   // 根据主题获取高亮颜色
   const highlightColors = isDark ? HIGHLIGHT_COLORS.dark : HIGHLIGHT_COLORS.light;
@@ -57,24 +63,100 @@ export default function RegexTesterPage() {
     setPatternError(info.error || '');
   }, [pattern]);
 
+  // 带超时的正则测试
+  const regexTestWithTimeout = useCallback((pat: string, fl: string, txt: string): { matches: RegexMatch[]; error?: string } => {
+    // 设置任务开始时间
+    taskRef.current.startTime = Date.now();
+
+    // 创建一个超时检查器
+    const checkTimeout = () => {
+      if (Date.now() - taskRef.current.startTime > REGEX_TIMEOUT_MS) {
+        return true;
+      }
+      return false;
+    };
+
+    try {
+      const regex = new RegExp(pat, fl);
+      const matches: RegexMatch[] = [];
+      let match;
+      let iterations = 0;
+      const MAX_ITERATIONS = 100000;
+
+      while ((match = regex.exec(txt)) !== null) {
+        // 检查超时
+        if (checkTimeout()) {
+          return { matches, error: 'Execution timed out' };
+        }
+
+        iterations++;
+        if (iterations > MAX_ITERATIONS) {
+          return { matches, error: 'Too many matches' };
+        }
+        matches.push({
+          match: match[0],
+          index: match.index,
+          groups: match.slice(1).map((g) => g || ''),
+        });
+
+        // 防止零长度无限匹配
+        if (match.index === regex.lastIndex && match[0].length === 0) {
+          regex.lastIndex++;
+          if (regex.lastIndex > txt.length) break;
+        }
+      }
+
+      return { matches };
+    } catch (e) {
+      return { matches: [], error: (e as Error).message };
+    }
+  }, []);
+
+  // 带超时的正则替换
+  const regexReplaceWithTimeout = useCallback((pat: string, repl: string, fl: string, txt: string): { result: string; error?: string } => {
+    taskRef.current.startTime = Date.now();
+
+    try {
+      const regex = new RegExp(pat, fl);
+      return { result: txt.replace(regex, repl) };
+    } catch (e) {
+      return { result: txt, error: (e as Error).message };
+    }
+  }, []);
+
   // 自动测试或替换
   useEffect(() => {
+    // 取消之前的任务
+    taskRef.current.cancelled = true;
+
     if (!isValid || !pattern) {
       setMatches([]);
       setReplaceResult('');
       return;
     }
 
-    if (mode === 'test') {
-      const result = regexTest(pattern, flags, testStr);
-      setMatches(result.matches);
-      setPatternError(result.error || '');
-    } else {
-      const result = regexReplace(pattern, replaceStr, flags, testStr);
-      setReplaceResult(result.result);
-      setPatternError(result.error || '');
-    }
-  }, [pattern, flags, testStr, replaceStr, mode, isValid]);
+    // 使用 setTimeout 避免阻塞 UI
+    const timer = setTimeout(() => {
+      taskRef.current.cancelled = false;
+      taskRef.current.startTime = Date.now();
+
+      if (mode === 'test') {
+        const result = regexTestWithTimeout(pattern, flags, testStr);
+        if (!taskRef.current.cancelled) {
+          setMatches(result.matches);
+          setPatternError(result.error || '');
+        }
+      } else {
+        const result = regexReplaceWithTimeout(pattern, replaceStr, flags, testStr);
+        if (!taskRef.current.cancelled) {
+          setReplaceResult(result.result);
+          setPatternError(result.error || '');
+        }
+      }
+    }, 10);
+
+    return () => clearTimeout(timer);
+  }, [pattern, flags, testStr, replaceStr, mode, isValid, regexTestWithTimeout, regexReplaceWithTimeout]);
 
   const columns = [
     { title: t('tools.regexTester.match'), dataIndex: 'match', key: 'match' },
@@ -84,6 +166,9 @@ export default function RegexTesterPage() {
     )},
   ];
 
+  // 为匹配结果添加唯一ID（因为空匹配可能有相同index）
+  const matchesWithId = matches.map((m, i) => ({ ...m, _uid: `${m.index}-${i}` }));
+
   // 生成高亮预览内容
   const renderHighlightPreview = () => {
     if (!testStr) return null;
@@ -92,7 +177,7 @@ export default function RegexTesterPage() {
     let lastIndex = 0;
 
     // 按位置排序匹配结果
-    const sortedMatches = [...matches].sort((a, b) => a.index - b.index);
+    const sortedMatches = [...matchesWithId].sort((a, b) => a.index - b.index);
 
     for (let i = 0; i < sortedMatches.length; i++) {
       const match = sortedMatches[i];
@@ -197,7 +282,7 @@ export default function RegexTesterPage() {
       {mode === 'test' && (
         <Card title={t('tools.regexTester.matches', { count: matches.length })} size="small">
           {matches.length > 0 ? (
-            <Table dataSource={matches} columns={columns} rowKey={(r) => `${r.index}-${r.match}`} pagination={false} />
+            <Table dataSource={matchesWithId} columns={columns} rowKey="_uid" pagination={false} />
           ) : (
             <Empty description={t('tools.regexTester.testString')} />
           )}
