@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, Input as AntInput, Button, Space, Typography, Row, Col, Divider } from 'antd';
 import { CopyOutlined, ReloadOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { timestampToDate, dateToTimestamp, getCurrentTimestamp } from '@/utils/other/timestamp';
@@ -17,7 +17,6 @@ export default function TimestampPage() {
   const [dateString, setDateString] = useState('');
   const [result, setResult] = useState<ReturnType<typeof timestampToDate> | null>(null);
   const [error, setError] = useState('');
-  const isUpdatingFromRef = useRef<'unix' | 'date' | null>(null);
 
   // 初始化时显示当前时间
   useEffect(() => {
@@ -27,10 +26,11 @@ export default function TimestampPage() {
     setResult(now);
   }, []);
 
-  // 从 Unix 时间戳更新
-  const updateFromUnix = useCallback((ts: string) => {
+  // 从 Unix 时间戳更新日期
+  const updateDateFromUnix = useCallback((ts: string) => {
     const num = parseInt(ts);
     if (isNaN(num) || ts === '') {
+      setDateString('');
       setResult(null);
       if (ts !== '') {
         setError(t('tools.timestamp.errorInvalidTimestamp'));
@@ -43,14 +43,12 @@ export default function TimestampPage() {
     const timestamp = num < 1000000000000 ? num * 1000 : num;
     const data = timestampToDate(timestamp);
     setResult(data);
-    isUpdatingFromRef.current = 'unix';
     setDateString(data.iso);
-    isUpdatingFromRef.current = null;
     setError('');
   }, [t]);
 
-  // 从日期字符串更新
-  const updateFromDate = useCallback((date: string) => {
+  // 从日期字符串更新 Unix 时间戳
+  const updateUnixFromDate = useCallback((date: string) => {
     if (date === '') {
       setResult(null);
       setError('');
@@ -59,9 +57,7 @@ export default function TimestampPage() {
     const result = dateToTimestamp(date);
     if (result.success && result.result) {
       setResult(result.result);
-      isUpdatingFromRef.current = 'date';
       setUnixTimestamp(result.result.unix.toString());
-      isUpdatingFromRef.current = null;
       setError('');
     } else {
       setError(result.error || t('tools.timestamp.errorInvalidDate'));
@@ -80,19 +76,17 @@ export default function TimestampPage() {
     navigator.clipboard.writeText(text);
   };
 
-  // Unix 时间戳变化时自动更新
-  useEffect(() => {
-    if (isUpdatingFromRef.current !== 'unix') {
-      updateFromUnix(unixTimestamp);
-    }
-  }, [unixTimestamp, updateFromUnix]);
+  const handleUnixChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const ts = e.target.value;
+    setUnixTimestamp(ts);
+    updateDateFromUnix(ts);
+  };
 
-  // 日期字符串变化时自动更新
-  useEffect(() => {
-    if (isUpdatingFromRef.current !== 'date') {
-      updateFromDate(dateString);
-    }
-  }, [dateString, updateFromDate]);
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const date = e.target.value;
+    setDateString(date);
+    updateUnixFromDate(date);
+  };
 
   return (
     <div className="space-y-4">
@@ -102,7 +96,7 @@ export default function TimestampPage() {
           <Card title={t('tools.timestamp.unixTimestamp')} size="small">
             <AntInput
               value={unixTimestamp}
-              onChange={(e) => setUnixTimestamp(e.target.value)}
+              onChange={handleUnixChange}
               placeholder={t('tools.timestamp.placeholderUnix')}
               suffix={t('tools.timestamp.milliseconds')}
             />
@@ -114,7 +108,7 @@ export default function TimestampPage() {
           }>
             <AntInput
               value={dateString}
-              onChange={(e) => setDateString(e.target.value)}
+              onChange={handleDateChange}
               placeholder={t('tools.timestamp.placeholderDate')}
             />
           </Card>
@@ -165,9 +159,6 @@ export default function TimestampPage() {
       <Card title={t('tools.timestamp.quickActions')} size="small">
         <Space wrap>
           <Button onClick={handleNow}>{t('tools.timestamp.getCurrent')}</Button>
-          <Button onClick={() => setUnixTimestamp(Math.floor(Date.now() / 1000).toString())}>
-            {t('tools.timestamp.currentSeconds')}
-          </Button>
         </Space>
       </Card>
     </div>
