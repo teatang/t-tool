@@ -94,25 +94,11 @@ export default function MermaidPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 验证语法
-  useEffect(() => {
-    if (!code.trim()) {
-      setError('');
-      return;
-    }
-    const result = mermaidValidate(code);
-    if (!result.success) {
-      setError(result.error || t('tools.mermaid.syntaxError'));
-    } else if (!renderResult || !error) {
-      // Only clear error if there was no previous error
-      setError('');
-    }
-  }, [code, t, renderResult, error]);
-
   // 渲染图表（防抖）
   useEffect(() => {
     if (!code.trim()) {
       setRenderResult(null);
+      setError('');
       return;
     }
 
@@ -127,11 +113,12 @@ export default function MermaidPage() {
         setRenderResult(result);
         if (!result.success) {
           setError(result.error || t('tools.mermaid.syntaxError'));
-        } else if (!error) {
+        } else {
           setError('');
         }
       } catch (e) {
         setError((e as Error).message);
+        setRenderResult(null);
       } finally {
         setIsRendering(false);
       }
@@ -142,7 +129,7 @@ export default function MermaidPage() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [code, error, t]);
+  }, [code, t]);
 
   const handleTemplateChange = (value: string) => {
     setDiagramType(value);

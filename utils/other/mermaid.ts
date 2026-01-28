@@ -12,6 +12,7 @@ mermaid.initialize({
   theme: 'default',
   securityLevel: 'loose',
   fontFamily: 'inherit',
+  suppressErrorRendering: true,
 });
 
 let idCounter = 0;
