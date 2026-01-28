@@ -2,6 +2,11 @@
 
 基于 Next.js 16、Redux Toolkit、Ant Design 和 Tailwind CSS 构建的开发者工具集合网站。
 
+## 文档索引
+
+- 中文文档：[cn](https://github.com/teatang/t-tool/blob/master/README.md)
+- English Document：[en](https://github.com/teatang/t-tool/blob/master/README_EN.md)
+
 ## 功能特性
 
 ### 字符串处理工具

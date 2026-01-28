@@ -2,6 +2,11 @@
 
 A collection of developer tools built with Next.js 16, Redux Toolkit, Ant Design, and Tailwind CSS.
 
+## Document Index
+
+- 中文文档：[cn](https://github.com/teatang/t-tool/blob/master/README.md)
+- English Document：[en](https://github.com/teatang/t-tool/blob/master/README_EN.md)
+
 ## Features
 
 ### String Tools
