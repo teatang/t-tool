@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, Button, Space, Statistic, Typography, message, Segmented } from 'antd';
+import { Card, Button, Space, Statistic, Typography, Segmented } from 'antd';
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
@@ -152,6 +152,140 @@ const drawNextPiece = (
   });
 };
 
+// 绘制触底动画
+const drawLandingAnimation = (
+  ctx: CanvasRenderingContext2D,
+  animation: { active: boolean; y: number; startTime: number; color: string },
+  currentTime: number,
+  cellSize: number
+) => {
+  if (!animation.active) return;
+
+  const elapsed = currentTime - animation.startTime;
+  const duration = 150; // 动画持续时间
+  const progress = Math.min(elapsed / duration, 1);
+
+  if (progress >= 1) {
+    animation.active = false;
+    return;
+  }
+
+  // 发光脉冲效果
+  const glowIntensity = Math.sin(progress * Math.PI) * 0.8;
+  const y = animation.y;
+
+  // 绘制发光线条
+  ctx.strokeStyle = `rgba(255, 255, 255, ${glowIntensity})`;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = animation.color;
+  ctx.shadowBlur = 20 * progress;
+
+  ctx.beginPath();
+  ctx.moveTo(0, (y + 1) * cellSize);
+  ctx.lineTo(BOARD_WIDTH * cellSize, (y + 1) * cellSize);
+  ctx.stroke();
+
+  // 重置阴影
+  ctx.shadowBlur = 0;
+};
+
+// 绘制消除动画
+const drawLineClearAnimation = (
+  ctx: CanvasRenderingContext2D,
+  animation: { rows: number[]; startTime: number; colors: string[] },
+  currentTime: number,
+  cellSize: number
+) => {
+  if (!animation.rows.length) return;
+
+  const elapsed = currentTime - animation.startTime;
+  const duration = 300; // 动画持续时间
+  const progress = Math.min(elapsed / duration, 1);
+
+  if (progress >= 1) {
+    animation.rows = [];
+    return;
+  }
+
+  // 闪烁效果
+  const flashIntensity = Math.sin((1 - progress) * Math.PI * 4) * 0.5 + 0.5;
+
+  animation.rows.forEach((row, index) => {
+    const color = animation.colors[index] || '#fff';
+    const y = row * cellSize;
+
+    // 绘制闪烁的行
+    ctx.fillStyle = `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, ${flashIntensity})`;
+    ctx.fillRect(0, y, BOARD_WIDTH * cellSize, cellSize);
+
+    // 缩小效果
+    if (progress > 0.5) {
+      const shrinkProgress = (progress - 0.5) * 2;
+      const innerSize = cellSize * (1 - shrinkProgress);
+
+      for (let x = 0; x < BOARD_WIDTH; x++) {
+        const cellX = x * cellSize + (cellSize - innerSize) / 2;
+        ctx.fillStyle = color;
+        ctx.fillRect(cellX, y + (cellSize - innerSize) / 2, innerSize, innerSize);
+      }
+    }
+  });
+};
+
+// 游戏结束动画类型
+interface GameOverAnimation {
+  startTime: number;
+  score: number;
+  highScore: number;
+  isNewHighScore: boolean;
+}
+
+// 绘制游戏结束动画
+const drawGameOverAnimation = (
+  ctx: CanvasRenderingContext2D,
+  animation: GameOverAnimation,
+  currentTime: number,
+  cellSize: number,
+  t: (key: string) => string
+) => {
+  const elapsed = currentTime - animation.startTime;
+  const duration = 2000; // 动画持续时间
+  const progress = Math.min(elapsed / duration, 1);
+
+  // 绘制半透明遮罩
+  ctx.fillStyle = `rgba(0, 0, 0, ${progress * 0.7})`;
+  ctx.fillRect(0, 0, BOARD_WIDTH * cellSize, BOARD_HEIGHT * cellSize);
+
+  if (progress > 0.3) {
+    const fadeProgress = (progress - 0.3) / 0.7;
+
+    // 游戏结束文字
+    ctx.fillStyle = `rgba(255, 255, 255, ${fadeProgress})`;
+    ctx.font = `bold ${28 * fadeProgress}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(t('tetris.gameOver'), BOARD_WIDTH * cellSize / 2, BOARD_HEIGHT * cellSize / 2 - 40);
+
+    // 最终得分
+    ctx.font = `${18 * fadeProgress}px sans-serif`;
+    ctx.fillStyle = `rgba(255, 255, 255, ${fadeProgress * 0.8})`;
+    ctx.fillText(`${t('tetris.finalScore')}: ${animation.score}`, BOARD_WIDTH * cellSize / 2, BOARD_HEIGHT * cellSize / 2);
+
+    // 最高得分
+    if (animation.isNewHighScore) {
+      ctx.fillStyle = `rgba(255, 215, 0, ${fadeProgress})`; // 金色
+      ctx.font = `bold ${16 * fadeProgress}px sans-serif`;
+      ctx.fillText(t('tetris.newHighScore') + '!', BOARD_WIDTH * cellSize / 2, BOARD_HEIGHT * cellSize / 2 + 30);
+    }
+
+    ctx.fillStyle = `rgba(255, 255, 255, ${fadeProgress * 0.6})`;
+    ctx.font = `${14 * fadeProgress}px sans-serif`;
+    ctx.fillText(`${t('tetris.highScore')}: ${animation.highScore}`, BOARD_WIDTH * cellSize / 2, BOARD_HEIGHT * cellSize / 2 + 55);
+
+    // 重置文本对齐
+    ctx.textAlign = 'start';
+  }
+};
+
 /**
  * 俄罗斯方块游戏组件
  */
@@ -167,12 +301,25 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
   const linesRef = useRef(0);
   const levelRef = useRef(1);
 
+  // 动画状态
+  const landingAnimationRef = useRef<{ active: boolean; y: number; startTime: number; color: string } | null>(null);
+  const lineClearAnimationRef = useRef<{ rows: number[]; startTime: number; colors: string[] } | null>(null);
+  const gameOverAnimationRef = useRef<GameOverAnimation | null>(null);
+
   // 用于触发 React 更新的 state
   const [displayScore, setDisplayScore] = useState(0);
   const [displayLines, setDisplayLines] = useState(0);
   const [displayLevel, setDisplayLevel] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false); // 游戏结束状态
   const [previewCount, setPreviewCount] = useState(1); // 预览方块数量
+
+  // 使用 lazy initialization 初始化最高分
+  const [displayHighScore, setDisplayHighScore] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const savedHighScore = localStorage.getItem('tetris-high-score');
+    return savedHighScore ? parseInt(savedHighScore, 10) : 0;
+  });
 
   // 绘制游戏
   const draw = useCallback(() => {
@@ -244,56 +391,140 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
       }
     }
 
+    // 绘制触底动画
+    if (landingAnimationRef.current) {
+      drawLandingAnimation(ctx, landingAnimationRef.current, performance.now(), cellSize);
+    }
+
+    // 绘制消除动画
+    if (lineClearAnimationRef.current) {
+      drawLineClearAnimation(ctx, lineClearAnimationRef.current, performance.now(), cellSize);
+    }
+
+    // 绘制游戏结束动画
+    if (gameOverAnimationRef.current) {
+      drawGameOverAnimation(
+        ctx,
+        gameOverAnimationRef.current,
+        performance.now(),
+        cellSize,
+        t
+      );
+    }
+
     // 绘制下一个方块预览
     drawNextPiece(ctx, nextPieces, cellSize, isDark, t);
   }, [isDark, t, previewCount]);
 
   // 游戏循环
   useEffect(() => {
-    if (!isPlaying) {
+    // 如果既不是在游戏中，也没有游戏结束需要显示，则停止循环
+    if (!isPlaying && !isGameOver) {
       cancelAnimationFrame(animationFrameRef.current);
       return;
     }
 
     const gameLoop = (timestamp: number) => {
-      // 计算时间差，控制速度 (初始 800ms)
-      const speed = Math.max(150, 800 - (levelRef.current - 1) * 50);
+      // 如果游戏正在进行，处理游戏逻辑
+      if (isPlaying) {
+        // 计算时间差，控制速度 (初始 800ms)
+        const speed = Math.max(150, 800 - (levelRef.current - 1) * 50);
 
-      if (!lastTimeRef.current) {
-        lastTimeRef.current = timestamp;
-      }
-
-      const elapsed = timestamp - lastTimeRef.current;
-
-      if (elapsed >= speed) {
-        const currentGame = gameRef.current;
-        const canMove = currentGame.moveDown();
-
-        if (!canMove) {
-          currentGame.lockPiece();
-          const clearedLines = currentGame.clearLines();
-          if (clearedLines > 0) {
-            linesRef.current += clearedLines;
-            levelRef.current = Math.floor(linesRef.current / 10) + 1;
-            scoreRef.current += clearedLines * 100 * levelRef.current;
-            setDisplayLines(linesRef.current);
-            setDisplayLevel(levelRef.current);
-            setDisplayScore(scoreRef.current);
-          }
-
-          if (currentGame.isGameOver()) {
-            setIsPlaying(false);
-            message.error(t('tetris.gameOver'));
-            return;
-          }
-
-          currentGame.spawnPiece();
+        if (!lastTimeRef.current) {
+          lastTimeRef.current = timestamp;
         }
 
-        lastTimeRef.current = timestamp;
+        const elapsed = timestamp - lastTimeRef.current;
+
+        if (elapsed >= speed) {
+          const currentGame = gameRef.current;
+          const canMove = currentGame.moveDown();
+
+          if (!canMove) {
+            // 获取当前方块信息用于触底动画
+            const pieceInfo = currentGame.getCurrentPieceInfo();
+            const ghostY = currentGame.getGhostPosition();
+
+            // 触发触底动画
+            if (pieceInfo && ghostY !== null) {
+              landingAnimationRef.current = {
+                active: true,
+                y: ghostY,
+                startTime: performance.now(),
+                color: pieceInfo.color,
+              };
+            }
+
+            currentGame.lockPiece();
+
+            // 获取消除行的颜色
+            const board = currentGame.getBoard();
+            const clearedRows: number[] = [];
+            const clearedColors: string[] = [];
+
+            for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+              if (board[y].every((cell) => cell !== null)) {
+                clearedRows.push(y);
+                // 获取该行第一个方块的颜色作为动画颜色
+                const firstColor = board[y].find((c) => c !== null);
+                if (firstColor) clearedColors.push(firstColor);
+              }
+            }
+
+            const clearedLines = currentGame.clearLines();
+
+            // 触发消除动画
+            if (clearedRows.length > 0) {
+              lineClearAnimationRef.current = {
+                rows: clearedRows,
+                startTime: performance.now(),
+                colors: clearedColors,
+              };
+            }
+
+            if (clearedLines > 0) {
+              linesRef.current += clearedLines;
+              levelRef.current = Math.floor(linesRef.current / 10) + 1;
+              scoreRef.current += clearedLines * 100 * levelRef.current;
+              setDisplayLines(linesRef.current);
+              setDisplayLevel(levelRef.current);
+              setDisplayScore(scoreRef.current);
+            }
+
+            if (currentGame.isGameOver()) {
+              // 获取当前最高分
+              const savedHighScore = localStorage.getItem('tetris-high-score');
+              const currentHighScore = savedHighScore ? parseInt(savedHighScore, 10) : 0;
+              const isNewHighScore = scoreRef.current > currentHighScore;
+
+              // 更新最高分
+              if (isNewHighScore) {
+                localStorage.setItem('tetris-high-score', scoreRef.current.toString());
+                setDisplayHighScore(scoreRef.current);
+              }
+
+              // 触发游戏结束动画
+              gameOverAnimationRef.current = {
+                startTime: performance.now(),
+                score: scoreRef.current,
+                highScore: isNewHighScore ? scoreRef.current : currentHighScore,
+                isNewHighScore,
+              };
+
+              // 设置游戏结束状态
+              setIsGameOver(true);
+              setIsPlaying(false);
+              // 游戏结束，不生成新方块
+            } else {
+              currentGame.spawnPiece();
+            }
+          }
+
+          lastTimeRef.current = timestamp;
+        }
       }
 
-      // 总是重绘
+      // 总是重绘（包括游戏结束画面）
       draw();
 
       animationFrameRef.current = requestAnimationFrame(gameLoop);
@@ -305,7 +536,7 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
     return () => {
       cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [isPlaying, draw, t]);
+  }, [isPlaying, isGameOver, draw]);
 
   // 重置游戏
   const resetGame = useCallback(() => {
@@ -317,18 +548,37 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
     setDisplayLines(0);
     setDisplayLevel(1);
     setIsPlaying(false);
+    setIsGameOver(false);
+    // 清除动画状态
+    landingAnimationRef.current = null;
+    lineClearAnimationRef.current = null;
+    gameOverAnimationRef.current = null;
     draw();
   }, [draw]);
 
   // 开始/暂停游戏
   const togglePlay = useCallback(() => {
+    // 如果游戏已结束，先重置
+    if (isGameOver) {
+      resetGame();
+      setIsPlaying(true);
+      // 让画布获得焦点
+      setTimeout(() => canvasRef.current?.focus(), 0);
+      return;
+    }
+
     const newIsPlaying = !isPlaying;
     setIsPlaying(newIsPlaying);
+
+    // 开始游戏时让画布获得焦点
+    if (newIsPlaying) {
+      setTimeout(() => canvasRef.current?.focus(), 0);
+    }
 
     if (!newIsPlaying && gameRef.current.isGameOver()) {
       resetGame();
     }
-  }, [isPlaying, resetGame]);
+  }, [isPlaying, isGameOver, resetGame]);
 
   // 移动方块
   const moveLeft = useCallback(() => {
@@ -353,10 +603,49 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
 
   const hardDrop = useCallback(() => {
     const currentGame = gameRef.current;
+
+    // 获取当前方块信息用于触底动画
+    const pieceInfo = currentGame.getCurrentPieceInfo();
+    const ghostY = currentGame.getGhostPosition();
+
+    // 触发触底动画
+    if (pieceInfo && ghostY !== null) {
+      landingAnimationRef.current = {
+        active: true,
+        y: ghostY,
+        startTime: performance.now(),
+        color: pieceInfo.color,
+      };
+    }
+
     currentGame.hardDrop();
     // 硬降后立即锁定方块
     currentGame.lockPiece();
+
+    // 获取消除行的颜色
+    const board = currentGame.getBoard();
+    const clearedRows: number[] = [];
+    const clearedColors: string[] = [];
+
+    for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+      if (board[y].every((cell) => cell !== null)) {
+        clearedRows.push(y);
+        const firstColor = board[y].find((c) => c !== null);
+        if (firstColor) clearedColors.push(firstColor);
+      }
+    }
+
     const clearedLines = currentGame.clearLines();
+
+    // 触发消除动画
+    if (clearedRows.length > 0) {
+      lineClearAnimationRef.current = {
+        rows: clearedRows,
+        startTime: performance.now(),
+        colors: clearedColors,
+      };
+    }
+
     if (clearedLines > 0) {
       linesRef.current += clearedLines;
       levelRef.current = Math.floor(linesRef.current / 10) + 1;
@@ -368,52 +657,37 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
     }
 
     if (currentGame.isGameOver()) {
+      // 获取当前最高分
+      const savedHighScore = localStorage.getItem('tetris-high-score');
+      const currentHighScore = savedHighScore ? parseInt(savedHighScore, 10) : 0;
+      const isNewHighScore = scoreRef.current > currentHighScore;
+
+      // 更新最高分
+      if (isNewHighScore) {
+        localStorage.setItem('tetris-high-score', scoreRef.current.toString());
+        setDisplayHighScore(scoreRef.current);
+      }
+
+      // 触发游戏结束动画
+      gameOverAnimationRef.current = {
+        startTime: performance.now(),
+        score: scoreRef.current,
+        highScore: isNewHighScore ? scoreRef.current : currentHighScore,
+        isNewHighScore,
+      };
+
+      // 设置游戏结束状态
+      setIsGameOver(true);
       setIsPlaying(false);
-      message.error(t('tetris.gameOver'));
-    } else {
-      currentGame.spawnPiece();
+      // 游戏结束，不生成新方块
     }
     draw();
-  }, [draw, t]);
-
-  // 键盘控制
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isPlaying) return;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          gameRef.current.moveLeft();
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          gameRef.current.moveRight();
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          gameRef.current.moveDown();
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          gameRef.current.rotate();
-          break;
-        case ' ':
-          e.preventDefault();
-          hardDrop();
-          break;
-        default:
-          return;
-      }
-      draw();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, draw, hardDrop]);
+  }, [draw]);
 
   // 初始绘制
   useEffect(() => {
+    // 初始时让画布获得焦点
+    canvasRef.current?.focus();
     draw();
   }, [draw]);
 
@@ -425,9 +699,37 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
           ref={canvasRef}
           width={BOARD_WIDTH * 24 + 100}
           height={BOARD_HEIGHT * 24}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (!isPlaying) return;
+            e.preventDefault();
+
+            switch (e.key) {
+              case 'ArrowLeft':
+                gameRef.current.moveLeft();
+                break;
+              case 'ArrowRight':
+                gameRef.current.moveRight();
+                break;
+              case 'ArrowDown':
+                gameRef.current.moveDown();
+                break;
+              case 'ArrowUp':
+                gameRef.current.rotate();
+                break;
+              case ' ':
+                hardDrop();
+                break;
+              default:
+                return;
+            }
+            draw();
+          }}
           style={{
             border: `2px solid ${isDark ? '#333' : '#d9d9d9'}`,
             borderRadius: 4,
+            outline: 'none',
+            cursor: isPlaying ? 'pointer' : 'default',
           }}
         />
       </Card>
@@ -443,6 +745,11 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
             title={<Text style={{ color: isDark ? '#aaa' : '#666' }}>{t('tetris.score')}</Text>}
             value={displayScore}
             valueStyle={{ color: isDark ? '#52ff7f' : '#52ff7f' }}
+          />
+          <Statistic
+            title={<Text style={{ color: isDark ? '#aaa' : '#666' }}>{t('tetris.highScore')}</Text>}
+            value={displayHighScore}
+            valueStyle={{ color: '#ffd700', fontWeight: 'bold' }}
           />
           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
             <Statistic
@@ -488,6 +795,13 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
             type="primary"
             icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
             onClick={togglePlay}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              // 只在游戏结束时阻止空格键触发按钮
+              if (e.key === ' ' && isGameOver) {
+                e.preventDefault();
+              }
+            }}
             block
           >
             {isPlaying ? t('tetris.pause') : t('tetris.start')}
@@ -496,6 +810,10 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
           <Button
             icon={<RedoOutlined />}
             onClick={resetGame}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              canvasRef.current?.focus();
+            }}
             block
           >
             {t('tetris.restart')}
@@ -503,13 +821,13 @@ export function TetrisGame({ isDark }: TetrisGameProps) {
 
           {/* 方向控制 */}
           <Space wrap style={{ justifyContent: 'center', marginTop: 8 }}>
-            <Button icon={<LeftOutlined />} onClick={moveLeft} size="large" />
-            <Button icon={<RightOutlined />} onClick={moveRight} size="large" />
-            <Button icon={<DownOutlined />} onClick={moveDown} size="large" />
-            <Button icon={<RotateLeftOutlined />} onClick={rotate} size="large">
+            <Button icon={<LeftOutlined />} onClick={moveLeft} onMouseDown={(e) => { e.preventDefault(); canvasRef.current?.focus(); }} size="large" />
+            <Button icon={<RightOutlined />} onClick={moveRight} onMouseDown={(e) => { e.preventDefault(); canvasRef.current?.focus(); }} size="large" />
+            <Button icon={<DownOutlined />} onClick={moveDown} onMouseDown={(e) => { e.preventDefault(); canvasRef.current?.focus(); }} size="large" />
+            <Button icon={<RotateLeftOutlined />} onClick={rotate} onMouseDown={(e) => { e.preventDefault(); canvasRef.current?.focus(); }} size="large">
               {t('tetris.rotate')}
             </Button>
-            <Button icon={<VerticalAlignBottomOutlined />} onClick={hardDrop} size="large" type="primary">
+            <Button icon={<VerticalAlignBottomOutlined />} onClick={() => isPlaying && hardDrop()} onMouseDown={(e) => { e.preventDefault(); canvasRef.current?.focus(); }} size="large" type="primary" disabled={!isPlaying}>
               {t('tetris.hardDrop')}
             </Button>
           </Space>
