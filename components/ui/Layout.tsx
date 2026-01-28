@@ -101,7 +101,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     {
       key: '/',
       icon: <HomeOutlined />,
-      label: <Link href="/">{isZh ? '首页' : 'Home'}</Link>,
+      label: <Link href="/">{t('nav.home')}</Link>,
     },
     {
       key: 'stringTools',
@@ -163,7 +163,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               fontSize: 15,
               letterSpacing: 1,
             }}>
-              {isZh ? '工具箱' : 'TOOLS'}
+              {t('nav.tools')}
             </span>
           )}
         </div>
