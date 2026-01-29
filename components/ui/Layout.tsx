@@ -77,9 +77,8 @@ function getMiniGameItems(t: (key: string) => string) {
 export function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);  // 侧边栏是否折叠
   const pathname = usePathname();                      // 当前路径
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   const { isDark } = useAppSelector((state) => state.theme);  // 从 store 直接获取 isDark
-  const isZh = locale === 'zh';
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();

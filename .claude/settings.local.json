@@ -27,7 +27,12 @@
       "Bash(pnpm lint)",
       "Bash(pnpm test:coverage:*)",
       "Bash(pnpm tsc:*)",
-      "Bash(pnpm exec:*)"
+      "Bash(pnpm exec:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm test:e2e)",
+      "Bash(npx cypress:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)"
     ]
   }
 }

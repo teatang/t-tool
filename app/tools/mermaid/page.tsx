@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, Input, Button, Space, Typography, Alert, Select } from 'antd';
 import { CopyOutlined, FullscreenOutlined, BlockOutlined } from '@ant-design/icons';
-import { mermaidRender, mermaidValidate, MermaidRenderResult } from '@/utils/other/mermaid';
+import { mermaidRender, MermaidRenderResult } from '@/utils/other/mermaid';
 import { useI18n } from '@/contexts/I18nContext';
 
 // 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
