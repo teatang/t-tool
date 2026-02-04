@@ -1,5 +1,10 @@
 'use client';
 
+/**
+ * UUID 生成工具页面
+ * 支持批量生成各种版本的 UUID（v1、v4、v7 等）
+ */
+
 import { useState } from 'react';
 import { Card, Input, Button, Space, Typography, Row, Col, Select, Table, Tag, Tooltip } from 'antd';
 import { DeleteOutlined, PlusOutlined, IdcardOutlined, CopyOutlined, CheckOutlined } from '@ant-design/icons';
