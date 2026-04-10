@@ -28,7 +28,7 @@ const translations: Record<string, Record<string, string>> = {
 
     // home
     'home.title': '静静工具箱',
-    'home.subtitle': '精选的在线工具集合',
+    'home.subtitle': '精选在线工具集合',
 
     // nav
     'nav.home': '首页',

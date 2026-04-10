@@ -15,7 +15,8 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:e2e": "cypress run",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks",
+    "release": "release-it"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.3",
@@ -38,6 +39,7 @@
     "cypress": "^15.9.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "release-it": "^19.2.4",
     "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^4",
     "typescript": "^5",
