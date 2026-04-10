@@ -27,12 +27,12 @@ const translations: Record<string, Record<string, string>> = {
     'common.no': '否',
 
     // home
-    'home.title': '开发者工具箱',
-    'home.subtitle': '为开发者精选的在线工具集合',
+    'home.title': '静静工具箱',
+    'home.subtitle': '精选的在线工具集合',
 
     // nav
     'nav.home': '首页',
-    'nav.tools': '工具箱',
+    'nav.tools': '静静工具箱',
 
     // base64
     'tools.base64.title': 'Base64 编码/解码',

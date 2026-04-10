@@ -2,8 +2,8 @@ name: Image Push to DockerHub
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
   workflow_dispatch: # 允许手动触发此工作流
 jobs:
   push-docker-hub:

@@ -14,7 +14,8 @@
     "test:coverage": "vitest run --coverage",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "test:e2e": "cypress run"
+    "test:e2e": "cypress run",
+    "postinstall": "simple-git-hooks"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.3",
@@ -28,6 +29,8 @@
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -35,8 +38,12 @@
     "cypress": "^15.9.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^2.1.8"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "npx --no-install commitlint -e"
   }
 }
