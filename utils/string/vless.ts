@@ -72,7 +72,8 @@ export function parseVlessUrl(rawUrl: string): VlessProxyConfig {
     throw new Error('未找到服务器地址');
   }
 
-  const port = parseInt(parsed.port, 10);
+  const rawPort = parsed.port || '443';
+  const port = parseInt(rawPort, 10);
   if (isNaN(port) || port <= 0 || port > 65535) {
     throw new Error(`无效的端口号: ${parsed.port}`);
   }
@@ -217,6 +218,16 @@ export function parseMultipleVless(text: string): ParseVlessResult {
       proxies.push(proxy);
     } catch (err) {
       errors.push(`第 ${i + 1} 行解析失败: ${(err as Error).message}`);
+    }
+  }
+
+  // 对重复节点名称自动增加数字后缀，避免 Mihomo 解析节点重名错误
+  const nameCountMap = new Map<string, number>();
+  for (const proxy of proxies) {
+    const count = nameCountMap.get(proxy.name) || 0;
+    nameCountMap.set(proxy.name, count + 1);
+    if (count > 0) {
+      proxy.name = `${proxy.name} ${count}`;
     }
   }
 

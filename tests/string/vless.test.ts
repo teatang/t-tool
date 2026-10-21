@@ -63,7 +63,9 @@ describe('VLESS Parser and Mihomo YAML Generator', () => {
   it('should throw an error for invalid VLESS URL', () => {
     expect(() => parseVlessUrl('http://example.com')).toThrow();
     expect(() => parseVlessUrl('vless://')).toThrow();
-    expect(() => parseVlessUrl('vless://invalid-without-port@host')).toThrow();
+    expect(() => parseVlessUrl('vless://@example.com:443')).toThrow();
+    expect(() => parseVlessUrl('vless://uuid@example.com:invalid-port')).toThrow();
+    expect(() => parseVlessUrl('vless://uuid@example.com:99999')).toThrow();
   });
 
   it('should parse multiple links and handle invalid lines', () => {
@@ -77,6 +79,25 @@ describe('VLESS Parser and Mihomo YAML Generator', () => {
     expect(res.errors).toHaveLength(1);
     expect(res.proxies[0].name).toBe('Node1');
     expect(res.proxies[1].name).toBe('Node2');
+  });
+
+  it('should default to port 443 when port is omitted', () => {
+    const url = 'vless://uuid-test@test.com?security=tls#DefaultPort';
+    const proxy = parseVlessUrl(url);
+    expect(proxy.port).toBe(443);
+  });
+
+  it('should ensure unique proxy names for duplicate node names in batch input', () => {
+    const input = `
+      vless://uuid-1@s1.com:443?security=tls#SameName
+      vless://uuid-2@s2.com:443?security=tls#SameName
+      vless://uuid-3@s3.com:443?security=tls#SameName
+    `;
+    const res = parseMultipleVless(input);
+    expect(res.proxies).toHaveLength(3);
+    expect(res.proxies[0].name).toBe('SameName');
+    expect(res.proxies[1].name).toBe('SameName 1');
+    expect(res.proxies[2].name).toBe('SameName 2');
   });
 
   it('should generate valid Mihomo YAML in proxies and full mode', () => {
