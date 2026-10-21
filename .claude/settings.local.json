@@ -32,7 +32,14 @@
       "Bash(pnpm test:e2e)",
       "Bash(npx cypress:*)",
       "Bash(curl:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(git checkout *)",
+      "Bash(/Users/tea/.claude/plugins/cache/claude-plugins-official/superpowers/7.0.0/skills/subagent-driven-development/scripts/sdd-workspace *)",
+      "Bash(git check-ignore *)",
+      "Bash(/Users/tea/.claude/plugins/cache/claude-plugins-official/superpowers/7.0.0/skills/executing-plans/scripts/task-start *)",
+      "Bash(git commit *)",
+      "Bash(/Users/tea/.claude/plugins/cache/claude-plugins-official/superpowers/7.0.0/skills/executing-plans/scripts/task-done *)",
+      "Bash(/Users/tea/.claude/plugins/cache/claude-plugins-official/superpowers/7.0.0/skills/subagent-driven-development/scripts/review-package *)"
     ]
   }
 }
