@@ -27,7 +27,8 @@
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
