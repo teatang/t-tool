@@ -130,6 +130,22 @@ const translations: Record<string, Record<string, string>> = {
     'tools.uuid.v4': '随机版本',
     'tools.uuid.v5': '基于 SHA-1',
 
+    // vlessToMihomo
+    'tools.vlessToMihomo.title': 'VLESS 转 Mihomo (Clash Meta)',
+    'tools.vlessToMihomo.name': 'VLESS 转 Mihomo',
+    'tools.vlessToMihomo.description': '将 VLESS 节点链接批量转换为 Mihomo / Clash Meta 代理配置',
+    'tools.vlessToMihomo.outputMode': '输出模式',
+    'tools.vlessToMihomo.proxiesOnly': '仅节点 (proxies)',
+    'tools.vlessToMihomo.fullConfig': '完整配置 (Full Config)',
+    'tools.vlessToMihomo.placeholder': '请输入 VLESS 链接，支持多行批量输入 (每行一条)...',
+    'tools.vlessToMihomo.resultPlaceholder': '转换后的 YAML 将在此处显示...',
+    'tools.vlessToMihomo.convert': '转换',
+    'tools.vlessToMihomo.download': '下载 YAML',
+    'tools.vlessToMihomo.copySuccess': '已复制到剪贴板',
+    'tools.vlessToMihomo.sample': '填入示例',
+    'tools.vlessToMihomo.convertedCount': '已成功转换 {count} 个节点',
+    'tools.vlessToMihomo.errorInvalid': '未找到有效的 VLESS 链接',
+
     // theme
     'theme.light': '浅色',
     'theme.dark': '深色',
@@ -145,6 +161,7 @@ const translations: Record<string, Record<string, string>> = {
     'tools.mermaid.name': 'Mermaid',
     'tools.timestamp.name': '时间戳',
     'tools.uuid.name': 'UUID',
+    'tools.vlessToMihomo.name': 'VLESS 转 Mihomo',
 
     // tetris
     'tetris.name': '俄罗斯方块',
@@ -296,6 +313,22 @@ const translations: Record<string, Record<string, string>> = {
     'tools.uuid.v4': 'Random',
     'tools.uuid.v5': 'SHA-1-based',
 
+    // vlessToMihomo
+    'tools.vlessToMihomo.title': 'VLESS to Mihomo',
+    'tools.vlessToMihomo.name': 'VLESS to Mihomo',
+    'tools.vlessToMihomo.description': 'Batch convert VLESS links to Mihomo / Clash Meta YAML',
+    'tools.vlessToMihomo.outputMode': 'Output Mode',
+    'tools.vlessToMihomo.proxiesOnly': 'Proxies Only',
+    'tools.vlessToMihomo.fullConfig': 'Full Config',
+    'tools.vlessToMihomo.placeholder': 'Enter VLESS link(s), one per line...',
+    'tools.vlessToMihomo.resultPlaceholder': 'Converted YAML will appear here...',
+    'tools.vlessToMihomo.convert': 'Convert',
+    'tools.vlessToMihomo.download': 'Download YAML',
+    'tools.vlessToMihomo.copySuccess': 'Copied to clipboard',
+    'tools.vlessToMihomo.sample': 'Load Sample',
+    'tools.vlessToMihomo.convertedCount': 'Successfully converted {count} nodes',
+    'tools.vlessToMihomo.errorInvalid': 'No valid VLESS links found',
+
     // theme
     'theme.light': 'Light',
     'theme.dark': 'Dark',
@@ -311,6 +344,7 @@ const translations: Record<string, Record<string, string>> = {
     'tools.mermaid.name': 'Mermaid',
     'tools.timestamp.name': 'Timestamp',
     'tools.uuid.name': 'UUID',
+    'tools.vlessToMihomo.name': 'VLESS to Mihomo',
 
     // tetris
     'tetris.name': 'Tetris',
