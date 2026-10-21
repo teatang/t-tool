@@ -16,6 +16,7 @@
 - **HTML 格式化** - HTML 格式化/压缩
 - **SQL 格式化** - SQL 语句格式化/压缩
 - **正则测试** - 正则表达式测试、匹配高亮、替换
+- **VLESS 转 Mihomo** - 将 VLESS 节点链接批量转换为 Mihomo (Clash Meta) YAML 配置
 
 ### 其他工具
 - **Mermaid** - Mermaid 图表编辑器，支持多种图表类型

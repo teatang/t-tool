@@ -13,6 +13,7 @@ import {
   BlockOutlined,
   ClockCircleOutlined,
   IdcardOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 
 // 禁用静态预渲染，因为页面依赖客户端 i18n 上下文
@@ -51,6 +52,7 @@ export default function HomePage() {
     { href: '/tools/html-formatter', title: t('tools.htmlFormatter.name'), description: t('tools.htmlFormatter.title'), icon: <FileTextOutlined /> },
     { href: '/tools/sql-formatter', title: t('tools.sqlFormatter.name'), description: t('tools.sqlFormatter.title'), icon: <DatabaseOutlined /> },
     { href: '/tools/regex-tester', title: t('tools.regexTester.name'), description: t('tools.regexTester.title'), icon: <ExperimentOutlined /> },
+    { href: '/tools/vless-to-mihomo', title: t('tools.vlessToMihomo.name'), description: t('tools.vlessToMihomo.description'), icon: <ThunderboltOutlined /> },
     { href: '/tools/mermaid', title: t('tools.mermaid.name'), description: t('tools.mermaid.title'), icon: <BlockOutlined /> },
     { href: '/tools/timestamp', title: t('tools.timestamp.name'), description: t('tools.timestamp.title'), icon: <ClockCircleOutlined /> },
     { href: '/tools/uuid', title: t('tools.uuid.name'), description: t('tools.uuid.title'), icon: <IdcardOutlined /> },

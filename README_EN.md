@@ -16,6 +16,7 @@ A collection of developer tools built with Next.js 16, Redux Toolkit, Ant Design
 - **HTML Formatter** - HTML formatting/minifying
 - **SQL Formatter** - SQL statement formatting/minifying
 - **Regex Tester** - Regular expression testing with match highlighting and replace
+- **VLESS to Mihomo** - Batch convert VLESS links to Mihomo (Clash Meta) YAML format
 
 ### Other Tools
 - **Mermaid** - Mermaid diagram editor with multiple diagram types

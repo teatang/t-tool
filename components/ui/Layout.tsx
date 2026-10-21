@@ -20,6 +20,7 @@ import {
   ToolOutlined,
   CrownOutlined,
   GatewayOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -47,6 +48,7 @@ function getStringToolItems(t: (key: string) => string) {
     { key: '/tools/html-formatter', icon: <FileTextOutlined />, label: <Link href="/tools/html-formatter">{t('tools.htmlFormatter.name')}</Link> },
     { key: '/tools/sql-formatter', icon: <DatabaseOutlined />, label: <Link href="/tools/sql-formatter">{t('tools.sqlFormatter.name')}</Link> },
     { key: '/tools/regex-tester', icon: <ExperimentOutlined />, label: <Link href="/tools/regex-tester">{t('tools.regexTester.name')}</Link> },
+    { key: '/tools/vless-to-mihomo', icon: <ThunderboltOutlined />, label: <Link href="/tools/vless-to-mihomo">{t('tools.vlessToMihomo.name')}</Link> },
   ];
 }
 
